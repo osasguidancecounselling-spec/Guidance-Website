@@ -39,7 +39,7 @@ services:
     name: guidance-counseling-client
     # Render will run commands from the 'client' directory
     rootDir: client
-    env: static_site
+    env: static
     plan: free # Or your preferred plan
     # Command to install dependencies and build the React app
     buildCommand: npm install && npm run build
