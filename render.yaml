@@ -22,13 +22,10 @@ services:
     envVars:
       - key: NODE_ENV
         value: production
-      - key: CLIENT_URL
-        fromService:
-          type: web
-          name: guidance-counseling-client
-          property: url
       # --- IMPORTANT ---
-      # Set the following secrets in your Render Dashboard Environment Group
+      # Set the following secrets and URLs in your Render Dashboard
+      - key: CLIENT_URL
+        sync: false
       - key: MONGO_URI
         sync: false
       - key: JWT_SECRET
@@ -48,11 +45,10 @@ services:
     buildCommand: npm install && npm run build
     autoDeploy: true
     envVars:
+      # --- IMPORTANT ---
+      # Set the following URL in your Render Dashboard
       - key: VITE_API_URL
-        fromService:
-          type: web
-          name: guidance-counseling-api
-          property: url
+        sync: false
     # Rewrite rule for Single Page Applications (SPAs) like React
     routes:
       - type: rewrite
