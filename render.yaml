@@ -10,8 +10,8 @@ services:
     name: guidance-counseling-api
     # Render will run commands from the 'server' directory
     rootDir: server
-    runtime: node # Updated from 'env: node'
-    plan: free # Or your preferred plan (e.g., starter)
+    runtime: node
+    plan: free
     # Command to install backend dependencies
     buildCommand: npm install
     # Command to start the server (uses the "start" script from server/package.json)
@@ -24,7 +24,7 @@ services:
         value: production
       - key: CLIENT_URL
         fromService:
-          type: web # The type for a web service is 'web'
+          type: web
           name: guidance-counseling-client
           property: url
       # --- IMPORTANT ---
@@ -38,16 +38,14 @@ services:
   # ---------------------- #
   #   Frontend Static Site #
   # ---------------------- #
-  - type: web # The correct type is 'web'
+  - type: web
     name: guidance-counseling-client
     # Render will run commands from the 'client' directory
     rootDir: client
-    runtime: static # The correct runtime for a static site
+    runtime: static
     plan: free
     # Command to install dependencies and build the React app
     buildCommand: npm install && npm run build
-    # The directory where the built static files are located (for Vite)
-    publishDir: ./dist
     autoDeploy: true
     envVars:
       - key: VITE_API_URL
