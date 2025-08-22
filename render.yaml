@@ -22,7 +22,7 @@ services:
         value: production
       - key: CLIENT_URL # The URL of your deployed frontend, automatically set by Render
         fromService:
-          type: static
+          type: static_site
           name: guidance-counseling-client # Must match the name of the static service below
           property: url
       # --- IMPORTANT ---
@@ -35,11 +35,11 @@ services:
   # ---------------------- #
   #  Frontend Static Site  #
   # ---------------------- #
-  - type: static
+  - type: static_site
     name: guidance-counseling-client
     # Render will run commands from the 'client' directory
     rootDir: client
-    env: static
+    env: static_site
     plan: free # Or your preferred plan
     # Command to install dependencies and build the React app
     buildCommand: npm install && npm run build
