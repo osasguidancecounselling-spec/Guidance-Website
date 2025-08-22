@@ -1,43 +1,62 @@
 # This file configures the deployment of the Guidance Counseling App on Render.
+# It defines two services: a Node.js backend and a React/Vite frontend.
+# Place this file in the root of your project repository.
 
 services:
-  # --------------------- #
-  #  Backend Web Service  #
-  # --------------------- #
-  - type: web
-    name: guidance-counseling-api
-    rootDir: server
-    env: node
-    plan: free
-    buildCommand: npm install
-    startCommand: npm start
-    healthCheckPath: /api/health
-    envVars:
-      - key: NODE_ENV
-        value: production
-      # NOTE: You will need to manually set CLIENT_URL, MONGO_URI, and JWT_SECRET
-      # in the Render dashboard for this API service after it's created.
-      - key: MONGO_URI
-        sync: false
-      - key: JWT_SECRET
-        sync: false
+  # --------------------- #
+  #  Backend Web Service  #
+  # --------------------- #
+  - type: web
+    name: guidance-counseling-api
+    # Render will run commands from the 'server' directory
+    rootDir: server
+    env: node
+    plan: free # Or your preferred plan (e.g., starter)
+    # Command to install backend dependencies
+    buildCommand: npm install
+    # Command to start the server (uses the "start" script from server/package.json)
+    startCommand: npm start
+    # Add a health check route to your server for better monitoring
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: CLIENT_URL
+        fromService:
+          type: static
+          name: guidance-counseling-client
+          property: url
+      # --- IMPORTANT ---
+      # Set the following secrets in your Render Dashboard Environment Group
+      - key: MONGO_URI
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      # Add any other environment variables your backend needs
 
-  # ---------------------- #
-  #  Frontend Static Site  #
-  # ---------------------- #
-  - type: static_site
-    name: guidance-counseling-client
-    rootDir: client
-    env: static
-    plan: free
-    buildCommand: npm install && npm run build
-    publishDir: ./dist
-    envVars:
-      # NOTE: You will need to manually set VITE_API_URL in the Render dashboard
-      # for this client service after it's created.
-      - key: VITE_API_URL
-        value: "" # This will be overridden by the value you set in the dashboard.
-    routes:
-      - type: rewrite
-        source: /*
-        destination: /index.html
+  # ---------------------- #
+  #  Frontend Static Site  #
+  # ---------------------- #
+  - type: static
+    name: guidance-counseling-client
+    # Render will run commands from the 'client' directory
+    rootDir: client
+    env: static
+    plan: free
+    # Command to install dependencies and build the React app
+    buildCommand: npm install && npm run build
+    # The directory where the built static files are located (for Vite)
+    publishDir: ./dist
+    autoDeploy: true
+    envVars:
+      - key: VITE_API_URL
+        fromService:
+          type: web
+          name: guidance-counseling-api
+          property: url
+    # Rewrite rule for Single Page Applications (SPAs) like React
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
