@@ -40,7 +40,7 @@ services:
     # Render will run commands from the 'client' directory
     rootDir: client
     runtime: static
-    plan: free
+    plan: starter # Changed from 'free' to 'starter'
     # Command to install dependencies and build the React app
     buildCommand: npm install && npm run build
     autoDeploy: true
