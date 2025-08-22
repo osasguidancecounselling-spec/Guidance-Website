@@ -1,0 +1,45 @@
+.appointment-list {
+  padding: 1.5rem;
+  background: rgba(0, 40, 0, 0.6); /* Match login card background */
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+  color: #fff;
+}
+
+.appointment-list h3 {
+  margin-top: 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  padding-bottom: 0.5rem;
+  color: #a5d6a7;
+}
+
+.appointment-list table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+}
+
+.appointment-list th, .appointment-list td {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2); /* Lighter border */
+  padding: 8px;
+  text-align: left;
+}
+
+.appointment-list th {
+  background-color: rgba(255, 255, 255, 0.1); /* Subtle dark header */
+}
+
+.status-badge {
+  padding: 0.25rem 0.5rem;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  color: white;
+  font-weight: bold;
+}
+
+.status-pending { background-color: #f0ad4e; }
+.status-approved { background-color: #5cb85c; }
+.status-cancelled { background-color: #d9534f; }
+.status-completed { background-color: #5bc0de; }

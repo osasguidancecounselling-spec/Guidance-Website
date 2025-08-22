@@ -1,0 +1,240 @@
+/* This is the corrected Login.css file to improve aesthetic balance */
+
+/* Background & container - Renamed to match JSX file */
+.login-page-container {
+  width: 100vw;
+  height: 100vh;
+  background: url('/bg.png') center/cover no-repeat;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Inter', sans-serif;
+  backdrop-filter: blur(4px);
+  overflow: hidden; /* prevent scrollbars */
+}
+
+/* Card styling (now more balanced and compact) */
+.login-card {
+  background: rgba(0, 40, 0, 0.6);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  padding: 1.8rem 2rem; /* Adjusted padding to be more compact */
+  border-radius: 1rem;
+  max-width: 350px; /* Reduced max-width for better balance with fewer inputs */
+  width: 100%;
+  text-align: center;
+  color: white;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+  animation: fadeIn 0.5s ease-in-out;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Header styling (consistent spacing) */
+.login-header {
+  width: 100%;
+}
+
+.login-logo {
+  width: 60px;
+  height: auto;
+  margin-bottom: 0.5rem;
+}
+
+.login-header-title {
+  color: #fff;
+  font-weight: 700;
+  font-size: 1.2rem;
+  margin-bottom: 0.1rem;
+}
+
+.login-header-subtitle {
+  color: #a5d6a7;
+  font-weight: 600;
+  font-size: 0.95rem;
+  margin-bottom: 0.1rem;
+}
+
+.login-header-portal {
+  color: #ffd54f;
+  font-weight: 600;
+  font-size: 0.85rem;
+  margin-bottom: 1.2rem;
+}
+
+/* Toggle buttons */
+.login-toggle {
+  display: flex;
+  width: 100%;
+  max-width: 250px; /* A fixed width for better control */
+  border-radius: 0.5rem;
+  overflow: hidden;
+  margin-bottom: 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.toggle-button {
+  flex: 1;
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  color: rgba(255, 255, 255, 0.7);
+  padding: 0.4rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.toggle-button.active {
+  background: linear-gradient(90deg, #2ecc71, #27ae60);
+  color: white;
+  pointer-events: none; /* Disable click on active button */
+}
+
+.toggle-button:hover:not(.active) {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+}
+
+/* Form layout */
+.login-form {
+  width: 100%;
+  max-width: 250px; /* Matches the toggle button width */
+}
+
+/* Form inputs */
+.login-input {
+  width: 100%;
+  height: 36px;
+  padding: 0 0.5rem;
+  margin: 0.3rem 0;
+  border: none;
+  border-radius: 0.5rem;
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
+  font-size: 0.85rem;
+  transition: all 0.3s ease;
+  box-sizing: border-box;
+}
+
+.login-input::placeholder {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.login-input:focus {
+  background: rgba(255, 255, 255, 0.25);
+  outline: none;
+  box-shadow: 0 0 6px #2ecc71;
+}
+
+/* Password input wrapper */
+.password-input-wrapper {
+  position: relative;
+  width: 100%;
+  margin: 0.3rem 0;
+}
+
+.password-input-wrapper .login-input {
+  padding-right: 2.5rem; /* Make room for the toggle icon */
+}
+
+.password-toggle-button {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.7);
+  cursor: pointer;
+  padding: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.password-toggle-button:hover {
+  color: #fff;
+}
+
+/* Forgot password link */
+.forgot-password {
+  width: 100%;
+  text-align: right;
+  margin-top: 0.4rem;
+  margin-bottom: 1rem;
+}
+
+.forgot-password a {
+  font-size: 0.75rem;
+  color: #00ff88;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.forgot-password a:hover {
+  text-decoration: underline;
+}
+
+/* Submit button */
+.primary-button {
+  width: 100%;
+  padding: 0.55rem 0;
+  background: linear-gradient(90deg, #2ecc71, #27ae60);
+  color: white;
+  border: none;
+  border-radius: 0.5rem;
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-bottom: 1rem;
+}
+
+.primary-button:hover {
+  transform: scale(1.02);
+  box-shadow: 0 0 10px rgba(46, 204, 113, 0.6);
+}
+
+.primary-button:disabled {
+  background: #aaa;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Footer links */
+.login-footer {
+  font-size: 0.75rem;
+  color: white;
+}
+
+.login-footer a {
+  color: #00ff88;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.login-footer a:hover {
+  text-decoration: underline;
+}
+
+/* Form messages */
+.form-message {
+  font-size: 0.8rem;
+  margin-top: 0.5rem;
+  font-weight: 600;
+}
+
+.form-message.success {
+  color: #2ecc71;
+}
+
+.form-message.error {
+  color: #e74c3c;
+}
+
+/* Animation */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}

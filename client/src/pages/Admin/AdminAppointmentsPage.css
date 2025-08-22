@@ -1,0 +1,104 @@
+.admin-appointments-page {
+  padding: 2rem;
+  color: #fff;
+}
+
+.admin-appointments-page h2 {
+  text-align: center;
+  font-size: 1.8rem;
+  margin-bottom: 2rem;
+  color: #a5d6a7;
+}
+
+.error-message {
+  color: #e74c60;
+  text-align: center;
+  font-weight: 600;
+}
+
+/* New styles for the two-column layout */
+.admin-appointments-container {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 2rem;
+  align-items: start;
+}
+
+.calendar-container,
+.pending-requests-container {
+  background-color: #2c3e50;
+  padding: 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.calendar-container h3,
+.pending-requests-container h3 {
+  font-size: 1.4rem;
+  color: #a5d6a7;
+  margin-top: 0;
+  margin-bottom: 1.5rem;
+  border-bottom: 2px solid #34495e;
+  padding-bottom: 0.75rem;
+}
+
+.pending-requests-list {
+  max-height: 500px; /* Same height as calendar */
+  overflow-y: auto;
+  padding-right: 10px; /* For scrollbar */
+}
+
+/* Custom scrollbar for pending list */
+.pending-requests-list::-webkit-scrollbar {
+  width: 8px;
+}
+.pending-requests-list::-webkit-scrollbar-track {
+  background: #34495e;
+  border-radius: 4px;
+}
+.pending-requests-list::-webkit-scrollbar-thumb {
+  background-color: #4a6a8a;
+  border-radius: 4px;
+}
+
+.pending-request-card {
+  background-color: #34495e;
+  padding: 1rem;
+  border-radius: 6px;
+  margin-bottom: 1rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease-in-out, transform 0.2s ease-in-out;
+  border-left: 4px solid #a5d6a7;
+}
+
+.pending-request-card:hover {
+  background-color: #415b77;
+  transform: translateY(-2px);
+}
+
+.pending-request-card .subject {
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: #ecf0f1;
+  margin: 0 0 0.5rem 0;
+}
+
+.pending-request-card .student,
+.pending-request-card .date {
+  font-size: 0.9rem;
+  color: #bdc3c7;
+  margin: 0.25rem 0;
+}
+
+.no-pending {
+  color: #95a5a6;
+  text-align: center;
+  padding: 2rem 0;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1024px) {
+  .admin-appointments-container {
+    grid-template-columns: 1fr;
+  }
+}

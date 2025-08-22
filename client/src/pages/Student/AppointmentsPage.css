@@ -1,0 +1,22 @@
+.appointments-page {
+  padding: 2rem;
+  color: #fff; /* Set default text color for the page to white */
+}
+
+.appointments-page h2 {
+  text-align: center;
+  font-size: 1.8rem;
+  margin-bottom: 2rem;
+}
+
+.appointments-content {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 2rem;
+}
+
+@media (max-width: 768px) {
+  .appointments-content {
+    grid-template-columns: 1fr;
+  }
+}

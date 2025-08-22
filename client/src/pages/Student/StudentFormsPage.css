@@ -1,0 +1,46 @@
+.student-forms-page {
+  padding: 2rem;
+  color: #fff;
+}
+
+.student-forms-page h2 {
+  text-align: center;
+  font-size: 1.8rem;
+  margin-bottom: 2rem;
+  color: #a5d6a7;
+}
+
+.forms-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 1.5rem;
+}
+
+.form-card {
+  background: rgba(0, 40, 0, 0.6);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  padding: 1.5rem;
+  border-radius: 8px;
+  text-decoration: none;
+  color: #fff;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  text-align: center;
+}
+
+.form-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 30px rgba(46, 204, 113, 0.3);
+}
+
+.form-card .form-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  color: #2ecc71;
+}
+
+.form-card h3 {
+  margin: 0;
+  font-size: 1.1rem;
+}

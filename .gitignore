@@ -1,0 +1,47 @@
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Logs
+logs
+*.log
+
+# Build output
+dist/
+build/
+
+# dotenv files (secrets)
+.env
+.env.local
+.env.development
+.env.production
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDEs/editors
+.vscode/
+.idea/
+
+# React specific
+client/.next/
+client/.turbo/
+client/.parcel-cache/
+client/public/build/
+client/.env*
+
+# Server specific
+server/.env
+server/uploads/
+
+# Coverage and test outputs
+coverage/
+*.lcov
+
+# Docker and misc
+docker-compose.override.yml
+*.bak
+*.swp
