@@ -1,4 +1,4 @@
-import React, { createContext, useState, useEffect } from 'react';
+import React, { createContext, useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../services/api'; // Assuming your central axios instance is here
 
@@ -11,32 +11,28 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
-  // Check if user is logged in on mount
-  useEffect(() => {
-    checkAuthStatus();
-  }, []);
-
-  const checkAuthStatus = async () => {
+  const checkAuthStatus = useCallback(async () => {
     try {
       const token = localStorage.getItem('token');
-      if (token) { 
+      if (token) {
         api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
         const response = await api.get('/auth/verify');
-        if (response.data) {
-          const userData = response.data;
-          setUser(userData);
-        } else {
-          localStorage.removeItem('token');
-        }
+        setUser(response.data);
       }
     } catch (error) {
       console.error('Auth verification error:', error);
       localStorage.removeItem('token');
       delete api.defaults.headers.common['Authorization'];
+      setUser(null);
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  // Check if user is logged in on mount
+  useEffect(() => {
+    checkAuthStatus();
+  }, [checkAuthStatus]);
 
   const login = async (credentials) => { // credentials can be { email, password } or { studentNumber, password }
     try {
@@ -65,11 +61,12 @@ export const AuthProvider = ({ children }) => {
   };
 
 
-  const logout = () => {
+  const logout = useCallback(() => {
     localStorage.removeItem('token');
+    delete api.defaults.headers.common['Authorization'];
     setUser(null);
     navigate('/');
-  };
+  }, [navigate]);
 
   const updateUser = (userData) => {
     setUser(userData);

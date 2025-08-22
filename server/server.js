@@ -16,8 +16,8 @@ const server = http.createServer(app);
 
 // Define allowed origins for CORS. This should be managed via environment variables.
 const allowedOrigins = [
-  process.env.CLIENT_DEV_URL || 'http://localhost:5173',
-  process.env.CLIENT_PROD_URL // e.g., https://your-app-name.onrender.com
+  'http://localhost:5173', // Development URL
+  process.env.CLIENT_URL   // Production URL injected by Render
 ];
 
 const io = new Server(server, {

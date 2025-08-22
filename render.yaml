@@ -1,0 +1,58 @@
+# This file configures the deployment of the Guidance Counseling App on Render.
+# It defines two services: a Node.js backend and a React/Vite frontend.
+# Place this file in the root of your project repository.
+
+services:
+  # --------------------- #
+  #  Backend Web Service  #
+  # --------------------- #
+  - type: web
+    name: guidance-counseling-api
+    # Render will run commands from the 'server' directory
+    rootDir: server
+    env: node
+    plan: free # Or your preferred plan (e.g., starter)
+    # Command to install backend dependencies
+    buildCommand: npm install
+    # Command to start the server (uses the "start" script from server/package.json)
+    startCommand: npm start
+    healthCheckPath: /api/health # Add a health check route to your server for better monitoring
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: CLIENT_URL # The URL of your deployed frontend, automatically set by Render
+        fromService:
+          type: static
+          name: guidance-counseling-client # Must match the name of the static service below
+          property: url
+      # --- IMPORTANT ---
+      # Set the following secrets in your Render Dashboard Environment Group
+      - key: MONGO_URI
+        sync: false # Prevents the value from being stored in the YAML file
+      - key: JWT_SECRET
+        sync: false
+
+  # ---------------------- #
+  #  Frontend Static Site  #
+  # ---------------------- #
+  - type: static
+    name: guidance-counseling-client
+    # Render will run commands from the 'client' directory
+    rootDir: client
+    env: static
+    plan: free # Or your preferred plan
+    # Command to install dependencies and build the React app
+    buildCommand: npm install && npm run build
+    # The directory where the built static files are located (for Vite)
+    publishDir: ./dist
+    envVars:
+      - key: VITE_API_URL # Make the backend URL available to the frontend build
+        fromService:
+          type: web
+          name: guidance-counseling-api
+          property: url
+    # Rewrite rule for Single Page Applications (SPAs) like React
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
