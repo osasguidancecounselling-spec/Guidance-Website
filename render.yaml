@@ -10,7 +10,7 @@ services:
     name: guidance-counseling-api
     # Render will run commands from the 'server' directory
     rootDir: server
-    env: node
+    runtime: node # Updated from 'env: node'
     plan: free # Or your preferred plan (e.g., starter)
     # Command to install backend dependencies
     buildCommand: npm install
@@ -24,7 +24,7 @@ services:
         value: production
       - key: CLIENT_URL
         fromService:
-          type: static
+          type: web # The type for a web service is 'web'
           name: guidance-counseling-client
           property: url
       # --- IMPORTANT ---
@@ -38,11 +38,11 @@ services:
   # ---------------------- #
   #   Frontend Static Site #
   # ---------------------- #
-  - type: static
+  - type: web # The correct type is 'web'
     name: guidance-counseling-client
     # Render will run commands from the 'client' directory
     rootDir: client
-    env: static
+    runtime: static # The correct runtime for a static site
     plan: free
     # Command to install dependencies and build the React app
     buildCommand: npm install && npm run build
