@@ -21,15 +21,16 @@ services:
         sync: false
 
   # ---------------------- #
-  #   Frontend Static Site #
+  #   Frontend Web Service #
   # ---------------------- #
   - type: web
     name: guidance-counseling-client
     rootDir: client
+    env: static
     plan: free
-    runtime: static
     buildCommand: npm install && npm run build
-    publishDir: ./dist
+    startCommand: ""
+    staticPublishPath: ./dist
     routes:
       - type: rewrite
         source: /*
@@ -38,4 +39,4 @@ services:
       # IMPORTANT: Manually set VITE_API_URL in the Render Dashboard
       # after the service is created.
       - key: VITE_API_URL
-        value: "https://will-be-set-manually.com" # This is a placeholder
+        value: "https://will-be-set-manually.com" # Placeholder
