@@ -4,9 +4,8 @@ services:
   # --------------------- #
   - type: web
     name: guidance-counseling-api
-    rootDir: server
-    env: node
-    plan: starter   # "free" not allowed for type:web
+    runtime: node
+    plan: starter   # backend cannot be free
     buildCommand: npm install && npm run create-dirs
     startCommand: npm start
     healthCheckPath: /api/health
@@ -20,13 +19,13 @@ services:
       - key: JWT_SECRET
         sync: false
 
-  # ---------------------- #
-  #   Frontend Static Site #
-  # ---------------------- #
-  - type: static
+  # ----------------------------- #
+  #   Frontend Static Site (SPA) #
+  # ----------------------------- #
+  - type: web
     name: guidance-counseling-client
-    rootDir: client
-    plan: free
+    runtime: static
+    plan: free     # frontend can stay free
     buildCommand: npm install && npm run build
     staticPublishPath: ./dist
     routes:
