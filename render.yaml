@@ -1,9 +1,6 @@
-# Simplified Render Blueprint to bypass parser issues.
-# Manual environment variable setup is required after deployment.
-
 services:
   # --------------------- #
-  #  Backend Web Service  #
+  #   Backend Web Service #
   # --------------------- #
   - type: web
     name: guidance-counseling-api
@@ -24,12 +21,11 @@ services:
         sync: false
 
   # ---------------------- #
-  #  Frontend Static Site  #
+  #   Frontend Static Site #
   # ---------------------- #
   - type: static_site
     name: guidance-counseling-client
     rootDir: client
-    env: static
     plan: free
     buildCommand: npm install && npm run build
     publishDir: ./dist
