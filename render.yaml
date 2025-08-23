@@ -23,10 +23,11 @@ services:
   # ---------------------- #
   #   Frontend Static Site #
   # ---------------------- #
-  - type: static_site
+  - type: web
     name: guidance-counseling-client
     rootDir: client
     plan: free
+    runtime: static
     buildCommand: npm install && npm run build
     publishDir: ./dist
     routes:
