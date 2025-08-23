@@ -6,7 +6,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node server.js",
-    "dev": "nodemon server.js"
+    "dev": "nodemon server.js",
+    "create-dirs": "node create-dirs.js"
   },
   "keywords": [],
   "author": "",
@@ -23,7 +24,7 @@
     "multer": "^2.0.2",
     "pdf-lib": "^1.17.1",
     "pdfkit": "^0.17.1",
-    "socket.io": "^4.7.5"
+    "socket.io": "^4.8.1"
   },
   "devDependencies": {
     "nodemon": "^3.1.10"

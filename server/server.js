@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
+const fs = require('fs');
 const http = require('http');
 const { Server } = require("socket.io");
 const connectDB = require('./config/db');
@@ -17,8 +18,8 @@ const server = http.createServer(app);
 // Define allowed origins for CORS. This should be managed via environment variables.
 const allowedOrigins = [
   'http://localhost:5173', // Development URL
-  process.env.CLIENT_URL   // Production URL injected by Render
-];
+  process.env.CLIENT_URL,  // Production URL injected by Render
+].filter(Boolean); // Filter out any falsy values (e.g., if CLIENT_URL is not set)
 
 const io = new Server(server, {
   cors: {
@@ -42,7 +43,19 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use('/outputs/forms', express.static(path.join(__dirname, 'outputs/forms')));
+// Health check route for Render to verify service is up
+app.get('/api/health', (req, res) => {
+  // You could add more complex checks here, like DB connection status
+  res.status(200).json({ status: 'ok', message: 'API is healthy' });
+});
+
+// Serve static files from outputs/forms directory if it exists
+const formsOutputPath = path.join(__dirname, 'outputs/forms');
+if (fs.existsSync(formsOutputPath)) {
+  app.use('/outputs/forms', express.static(formsOutputPath));
+} else {
+  console.log('outputs/forms directory does not exist, skipping static file serving');
+}
 app.use('/api', routes);
 
 io.on('connection', (socket) => {
