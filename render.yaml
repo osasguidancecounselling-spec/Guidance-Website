@@ -6,7 +6,7 @@ services:
     name: guidance-counseling-api
     rootDir: server
     env: node
-    plan: free
+    plan: starter   # "free" not allowed for type:web
     buildCommand: npm install && npm run create-dirs
     startCommand: npm start
     healthCheckPath: /api/health
@@ -21,15 +21,13 @@ services:
         sync: false
 
   # ---------------------- #
-  #   Frontend Web Service #
+  #   Frontend Static Site #
   # ---------------------- #
-  - type: web
+  - type: static
     name: guidance-counseling-client
     rootDir: client
-    env: static
     plan: free
     buildCommand: npm install && npm run build
-    startCommand: ""
     staticPublishPath: ./dist
     routes:
       - type: rewrite
