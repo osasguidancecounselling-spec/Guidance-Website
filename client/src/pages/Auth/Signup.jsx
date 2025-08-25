@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useState, useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "./Signup.css";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
-import { API_BASE_URL, validateForm } from "../../utils/validation";
+import { validateForm } from "../../utils/validation";
+import { AuthContext } from "../../contexts/AuthProvider";
 
 function Signup() {
   const [formData, setFormData] = useState({
@@ -28,6 +29,7 @@ function Signup() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [message, setMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const { register } = useContext(AuthContext);
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -53,50 +55,35 @@ function Signup() {
 
     setIsLoading(true);
 
-    try {
-      const response = await fetch(`${API_BASE_URL}/api/auth/register`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          name: `${formData.firstName} ${formData.middleName} ${formData.lastName}`.trim(),
-          email: formData.email,
-          password: formData.password,
-          studentNumber: formData.studentNumber,
-          course: formData.course,
-          year: formData.year,
-          section: formData.section,
-          securityQuestions: {
-            question1: "What was your first pet's name?",
-            answer1: formData.answer1,
-            question2: "What is your favorite food?",
-            answer2: formData.answer2,
-            question3: "What city were you born in?",
-            answer3: formData.answer3
-          }
-        }),
-      });
+    const result = await register({
+      name: `${formData.firstName} ${formData.middleName} ${formData.lastName}`.trim(),
+      email: formData.email,
+      password: formData.password,
+      studentNumber: formData.studentNumber,
+      course: formData.course,
+      year: formData.year,
+      section: formData.section,
+      securityQuestions: {
+        question1: "What was your first pet's name?",
+        answer1: formData.answer1,
+        question2: "What is your favorite food?",
+        answer2: formData.answer2,
+        question3: "What city were you born in?",
+        answer3: formData.answer3
+      }
+    });
 
-      const data = await response.json();
-      
-      if (response.ok) {
-        setMessage("✅ Account created successfully! Redirecting to login...");
-        setTimeout(() => {
-          navigate("/");
-        }, 2000);
-      } else {
-        setMessage(`❌ ${data.message || "Registration failed"}`);
-      }
-    } catch (err) {
-      console.error("Registration error:", err);
-      if (err.name === 'TypeError' && err.message.includes('Failed to fetch')) {
-        setMessage("❌ Cannot connect to server. Please ensure the server is running on http://localhost:5000");
-      } else {
-        setMessage("❌ Server error. Please try again later.");
-      }
-    } finally {
-      setIsLoading(false);
+    setIsLoading(false);
+
+    if (result.success) {
+      setMessage("✅ Account created successfully! Redirecting to dashboard...");
+      // On successful registration, the user is already logged in via the context.
+      // Navigate them to the dashboard.
+      setTimeout(() => {
+        navigate("/dashboard");
+      }, 2000);
+    } else {
+      setMessage(`❌ ${result.error || "Registration failed"}`);
     }
   };
 

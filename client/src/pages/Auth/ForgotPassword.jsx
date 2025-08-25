@@ -92,8 +92,6 @@ const ForgotPassword = () => {
 
   return (
     <div className="login-page-container">
-      {/* Remove loading overlay */}
-
       <div className="login-card">
         {/* University Header */}
         <div className="login-header">

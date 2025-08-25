@@ -1,7 +1,9 @@
 // client/src/pages/Admin/AdminFormViewer.jsx
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import "./AdminFormViewer.css"; // We'll define this style next
+import { api } from "../../services/api"; // Use the central api instance
+
+import "./AdminFormViewer.css";
 
 const AdminFormViewer = () => {
   const { filename } = useParams();
@@ -14,8 +16,8 @@ const AdminFormViewer = () => {
   useEffect(() => {
     const fetchForm = async () => {
       try {
-        const res = await fetch(`http://localhost:5000/api/forms/parse/${filename}`);
-        const data = await res.json();
+        const res = await api.get(`/forms/parse/${filename}`);
+        const data = res.data;
         setQuestions(data.questions);
         setFormTitle(data.title);
         setLoading(false);
@@ -36,20 +38,14 @@ const AdminFormViewer = () => {
     setMessage("Submitting...");
 
     try {
-      const response = await fetch("http://localhost:5000/api/forms/submit", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          role: "admin",
-          filename: formTitle,
-          answers,
-        }),
+      const response = await api.post(`/forms/submit`, {
+        role: "admin",
+        filename: formTitle,
+        answers,
       });
 
-      const result = await response.json();
-      if (response.ok) {
+      const result = response.data;
+      if (response.status === 200 || response.status === 201) {
         setMessage("✅ Form submitted and saved as PDF!");
       } else {
         setMessage(`❌ ${result.message || "Submission failed."}`);

@@ -45,18 +45,21 @@ app.use((req, res, next) => {
 
 // Health check route for Render to verify service is up
 app.get('/api/health', (req, res) => {
-  // You could add more complex checks here, like DB connection status
   res.status(200).json({ status: 'ok', message: 'API is healthy' });
 });
 
-// Serve static files from outputs/forms directory if it exists
-const formsOutputPath = path.join(__dirname, 'outputs/forms');
-if (fs.existsSync(formsOutputPath)) {
-  app.use('/outputs/forms', express.static(formsOutputPath));
-} else {
-  console.log('outputs/forms directory does not exist, skipping static file serving');
-}
 app.use('/api', routes);
+
+// --- Deployment Code: Serve React App ---
+// Serve static files from the React build directory
+const clientBuildPath = path.join(__dirname, '../client/dist');
+app.use(express.static(clientBuildPath));
+
+// The "catchall" handler: for any request that doesn't match one above,
+// send back React's index.html file.
+app.get('*', (req, res) => {
+  res.sendFile(path.join(clientBuildPath, 'index.html'));
+});
 
 io.on('connection', (socket) => {
   console.log('A user connected:', socket.id);
