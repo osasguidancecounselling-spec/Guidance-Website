@@ -37,12 +37,14 @@ const getAllAppointments = async (req, res) => {
   }
 };
 
-const getMyApointments = async (req, res) => {
+const getMyAppointments = async (req, res) => {
   try {
-    const appointments = await Appointment.find({ student: req.user.id });
+    const appointments = await Appointment.find({ student: req.user._id })
+      .populate('student', 'name studentNumber email')
+      .sort({ createdAt: -1 });
     res.json(appointments);
   } catch (error) {
-    res.status(500).json({ message: 'Server error while fetching your appointments.' });
+    res.status(500).json({ message: 'Server error while fetching appointments.' });
   }
 };
 
@@ -66,4 +68,4 @@ const updateAppointment = async (req, res) => {
   }
 };
 
-module.exports = { createAppointment, getAllAppointments, getMyApointments, updateAppointment };
+module.exports = { createAppointment, getAllAppointments, getMyAppointments, updateAppointment };
