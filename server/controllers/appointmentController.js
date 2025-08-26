@@ -2,9 +2,9 @@ const Appointment = require('../models/Appointment');
 const User = require('../models/User');
 
 const createAppointment = async (req, res) => {
-  const { subject, description, preferredDate } = req.body;
+  const { subject, description, preferredDate, preferredTime } = req.body;
 
-  if (!subject || !description || !preferredDate) {
+  if (!subject || !description || !preferredDate || !preferredTime) {
     return res.status(400).json({ message: 'Please provide all required fields.' });
   }
 
@@ -14,15 +14,18 @@ const createAppointment = async (req, res) => {
       subject,
       description,
       preferredDate,
+      preferredTime,
     });
 
     const createdAppointment = await appointment.save();
 
-    const populatedAppointment = await Appointment.findById(createdAppointment._id).populate('student', 'name studentNumber email');
+    // Populate the student details on the saved document
+    await createdAppointment.populate('student', 'name studentNumber email');
 
-    req.io.emit('newAppointment', populatedAppointment);
+    // Emit only to the 'admin' room
+    req.io.to('admin').emit('newAppointment', createdAppointment);
 
-    res.status(201).json(populatedAppointment);
+    res.status(201).json(createdAppointment);
   } catch (error) {
     res.status(500).json({ message: 'Server error while creating appointment.' });
   }
@@ -30,40 +33,55 @@ const createAppointment = async (req, res) => {
 
 const getAllAppointments = async (req, res) => {
   try {
-    const appointments = await Appointment.find({}).populate('student', 'name studentNumber email');
+    const appointments = await Appointment.find({})
+      .populate('student', 'name studentNumber email')
+      .sort({ createdAt: -1 });
     res.json(appointments);
   } catch (error) {
     res.status(500).json({ message: 'Server error while fetching appointments.' });
   }
 };
 
-const getMyApointments = async (req, res) => {
+const getMyAppointments = async (req, res) => {
   try {
-    const appointments = await Appointment.find({ student: req.user.id });
+    const appointments = await Appointment.find({ student: req.user.id })
+      .populate('student', 'name studentNumber email')
+      .sort({ createdAt: -1 });
     res.json(appointments);
   } catch (error) {
-    res.status(500).json({ message: 'Server error while fetching your appointments.' });
+    res.status(500).json({ message: 'Server error while fetching appointments.' });
   }
 };
 
 const updateAppointment = async (req, res) => {
-  const { status, adminNotes } = req.body;
+  const { status, adminNotes, scheduledDateTime } = req.body;
+  const updateData = {};
+  if (status) updateData.status = status;
+  if (adminNotes) updateData.adminNotes = adminNotes;
+  if (scheduledDateTime) updateData.scheduledDateTime = scheduledDateTime;
+
   try {
-    const appointment = await Appointment.findById(req.params.id);
-    if (!appointment) return res.status(404).json({ message: 'Appointment not found.' });
+    // Use findByIdAndUpdate for a single, efficient database operation
+    const updatedAppointment = await Appointment.findByIdAndUpdate(
+      req.params.id,
+      updateData,
+      { new: true, runValidators: true }
+    ).populate('student', 'name studentNumber email');
 
-    appointment.status = status || appointment.status;
-    appointment.adminNotes = adminNotes || appointment.adminNotes;
+    if (!updatedAppointment) {
+      return res.status(404).json({ message: 'Appointment not found.' });
+    }
 
-    const updatedAppointment = await appointment.save();
+    // Emit to admins and the specific student involved in the appointment
+    const studentId = updatedAppointment.student._id.toString();
+    req.io.to('admin').emit('appointmentUpdated', updatedAppointment);
+    req.io.to(studentId).emit('appointmentUpdated', updatedAppointment);
 
-    const populatedAppointment = await Appointment.findById(updatedAppointment._id).populate('student', 'name studentNumber email');
-    req.io.emit('appointmentUpdated', populatedAppointment);
-
-    res.json(populatedAppointment);
+    res.json(updatedAppointment);
   } catch (error) {
+    console.error('Error updating appointment:', error);
     res.status(500).json({ message: 'Server error while updating appointment.' });
   }
 };
 
-module.exports = { createAppointment, getAllAppointments, getMyApointments, updateAppointment };
+module.exports = { createAppointment, getAllAppointments, getMyAppointments, updateAppointment };

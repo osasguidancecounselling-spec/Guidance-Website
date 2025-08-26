@@ -1,14 +1,16 @@
 import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
-import axios from "axios";
+import { api } from "../../services/api";
+import { validatePassword } from "../../utils/validation";
 import "./ForgotPassword.css";
 
 const ForgotPassword = () => {
   const [step, setStep] = useState(1);
+  const navigate = useNavigate();
   const [studentNumber, setStudentNumber] = useState("");
   const [securityAnswers, setSecurityAnswers] = useState({
     answer1: "",
-    // In a real app, these would be fetched from the backend
     answer2: "",
     answer3: ""
   });
@@ -26,7 +28,7 @@ const ForgotPassword = () => {
     setIsLoading(true);
     setMessage("");
     try {
-      const res = await axios.post("/api/auth/forgot-password/find-student", { studentNumber });
+      const res = await api.post("/auth/forgot-password/find-student", { studentNumber });
       setSecurityQuestions(res.data.questions);
       setStep(2);
     } catch (error) {
@@ -41,7 +43,7 @@ const ForgotPassword = () => {
     setIsLoading(true);
     setMessage("");
     try {
-      const res = await axios.post("/api/auth/forgot-password/verify-answers", {
+      const res = await api.post("/auth/forgot-password/verify-answers", {
         studentNumber,
         answers: securityAnswers,
       });
@@ -61,20 +63,22 @@ const ForgotPassword = () => {
       setMessage("❌ Passwords do not match");
       return;
     }
-    if (newPassword.length < 8) {
-      setMessage("❌ Password must be at least 8 characters");
+    const passwordError = validatePassword(newPassword);
+    if (passwordError) {
+      setMessage(`❌ ${passwordError}`);
       return;
     }
+
     setIsLoading(true);
     setMessage("");
     try {
-      await axios.post("/api/auth/forgot-password/reset", {
+      await api.post("/auth/forgot-password/reset", {
         resetToken,
         newPassword,
       });
       setMessage("✅ Password reset successfully! Redirecting to login...");
       setTimeout(() => {
-        window.location.href = "/";
+        navigate("/");
       }, 2000);
     } catch (error) {
       setMessage(`❌ ${error.response?.data?.message || "Password reset failed."}`);
@@ -225,7 +229,7 @@ const ForgotPassword = () => {
         )}
 
         <div className="signup-prompt">
-          Remembered your password? <a href="/">Log in here</a>
+          Remembered your password? <Link to="/">Log in here</Link>
         </div>
       </div>
     </div>

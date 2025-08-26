@@ -127,8 +127,10 @@ router.post('/forgot-password/verify-answers', async (req, res) => {
       return res.status(404).json({ message: 'Student not found.' });
     }
 
-    const { answer1, answer2, answer3 } = user.securityQuestions;
-    if (answers.answer1 === answer1 && answers.answer2 === answer2 && answers.answer3 === answer3) {
+    // Securely compare the provided answers with the stored hashes
+    const isMatch = await user.matchSecurityAnswers(answers);
+
+    if (isMatch) {
       const resetToken = jwt.sign({ id: user._id }, config.JWT_SECRET, { expiresIn: '10m' });
       res.json({ resetToken });
     } else {
@@ -155,21 +157,21 @@ router.post('/forgot-password/reset', async (req, res) => {
 
 const { protect, admin } = require('../middleware/authMiddleware');
 
-router.post('/admin-reset-password', protect, admin, async (req, res) => {
+router.post('/reset-user-password', protect, admin, async (req, res) => {
   // The user ID to reset comes from the request body.
   // The admin performing the action is validated by the `protect` and `admin` middleware.
   const { userId, newPassword } = req.body;
   try {
-    const admin = await User.findById(userId);
+    const userToReset = await User.findById(userId);
 
-    if (!admin) {
-      return res.status(404).json({ message: 'Admin user not found.' });
+    if (!userToReset) {
+      return res.status(404).json({ message: 'User not found.' });
     }
 
-    admin.password = newPassword;
-    await admin.save();
+    userToReset.password = newPassword;
+    await userToReset.save();
 
-    res.json({ message: 'Admin password has been reset successfully.' });
+    res.json({ message: `Password for user ${userToReset.name} has been reset successfully.` });
   } catch (error) {
     console.error('Admin password reset error:', error);
     res.status(500).json({ message: 'Server error during password reset.' });

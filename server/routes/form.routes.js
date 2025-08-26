@@ -12,6 +12,7 @@ const {
   getMySubmissions,
   getFormFilterOptions,
   getSubmissionById,
+  getAllSubmissions,
 } = require('../controllers/formController');
 
 // === Admin Routes (Protected by admin middleware) ===
@@ -28,22 +29,24 @@ router.get('/:id/submissions', protect, admin, getSubmissionsForForm);
 // Get unique filter options for the submissions table
 router.get('/filter-options', protect, admin, getFormFilterOptions);
 
+// Get all submissions across all forms, with filtering
+router.get('/submissions/all', protect, admin, getAllSubmissions);
+
 // Get a single submission by its ID for the detailed viewer
 router.get('/submissions/:id', protect, admin, getSubmissionById);
-
 
 // === Student & General Routes (Protected by standard login) ===
 
 // Get a list of all available forms (e.g., for a dropdown)
 router.get('/', protect, getAllForms);
 
+// Get all submissions made by the currently logged-in student
+router.get('/my-submissions', protect, getMySubmissions);
+
 // Get the full details (questions) of a single form to be filled out
 router.get('/:id', protect, getFormById);
 
 // Submit answers to a form
 router.post('/:id/submit', protect, submitForm);
-
-// Get all submissions made by the currently logged-in student
-router.get('/my-submissions', protect, getMySubmissions);
 
 module.exports = router;

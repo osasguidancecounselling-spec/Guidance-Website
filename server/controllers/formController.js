@@ -1,4 +1,3 @@
-const fs = require('fs');
 const path = require('path');
 const Form = require('../models/Form');
 const axios = require('axios');
@@ -13,19 +12,26 @@ const uploadForm = async (req, res) => {
       return res.status(400).json({ message: 'No file uploaded.' });
     }
 
-    // The file is at a URL. Download it to a buffer to be parsed.
-    const response = await axios.get(req.file.path, { responseType: 'arraybuffer' });
-    const fileBuffer = Buffer.from(response.data, 'binary');
+    // 1. Parse the file directly from the buffer in memory
+    const { title, questions } = await parseDocx(req.file.buffer);
 
-    // Pass the buffer to the parsing utility.
-    // Note: Ensure your `parseDocx` utility can handle a buffer.
-    const { title, questions } = await parseDocx(fileBuffer);
+    // 2. Upload the original file buffer to Cloudinary
+    const uploadResult = await new Promise((resolve, reject) => {
+      const uploadStream = cloudinary.uploader.upload_stream(
+        { folder: 'gcs_forms', resource_type: 'raw' }, // Use 'raw' for non-image files like docx
+        (error, result) => {
+          if (error) return reject(error);
+          resolve(result);
+        }
+      );
+      uploadStream.end(req.file.buffer);
+    });
+
     const newForm = new Form({
       title,
       questions,
-      // Save Cloudinary URL and public ID (filename)
-      fileUrl: req.file.path, 
-      filePublicId: req.file.filename,
+      fileUrl: uploadResult.secure_url,
+      filePublicId: uploadResult.public_id,
     });
     await newForm.save();
     res.status(201).json({ message: 'Form uploaded and parsed successfully.', form: newForm });
@@ -60,17 +66,24 @@ const submitForm = async (req, res) => {
     if (!form) return res.status(404).json({ message: 'Form not found' });
 
     const { answers, studentInfo } = req.body;
-    // This function now returns a local path to the generated PDF
-    const { pdfPath, filename } = await generatePdf(form, answers, studentInfo);
+    // This function should be adapted to return a buffer instead of a file path
+    const { pdfBuffer, filename } = await generatePdf(form, answers, studentInfo);
 
-    // Upload the generated PDF to Cloudinary
-    const uploadResult = await cloudinary.uploader.upload(pdfPath, {
-      folder: 'gcs_submissions',
-      public_id: filename,
+    // Upload the generated PDF buffer to Cloudinary
+    const uploadResult = await new Promise((resolve, reject) => {
+      const uploadStream = cloudinary.uploader.upload_stream(
+        {
+          folder: 'gcs_submissions',
+          public_id: filename,
+          resource_type: 'raw',
+        },
+        (error, result) => {
+          if (error) return reject(error);
+          resolve(result);
+        }
+      );
+      uploadStream.end(pdfBuffer);
     });
-
-    // Clean up the local temporary PDF file
-    fs.unlinkSync(pdfPath);
 
     const submission = new FormSubmission({
       form: form._id,
@@ -174,6 +187,63 @@ const getSubmissionById = async (req, res) => {
   }
 };
 
+const getAllSubmissions = async (req, res) => {
+  try {
+    const { course, year, section } = req.query;
+
+    // Build the aggregation pipeline
+    const pipeline = [
+      // 1. Populate student details
+      {
+        $lookup: {
+          from: 'users', // The name of the User collection
+          localField: 'student',
+          foreignField: '_id',
+          as: 'studentInfo',
+        },
+      },
+      // 2. Deconstruct the studentInfo array
+      { $unwind: '$studentInfo' },
+      // 3. Build the match stage based on query params
+      {
+        $match: {
+          ...(course && { 'studentInfo.course': course }),
+          ...(year && { 'studentInfo.year': year }),
+          ...(section && { 'studentInfo.section': section }),
+        },
+      },
+      // 4. Populate form details
+      {
+        $lookup: {
+          from: 'forms', // The name of the Form collection
+          localField: 'form',
+          foreignField: '_id',
+          as: 'formInfo',
+        },
+      },
+      { $unwind: '$formInfo' },
+      // 5. Project the final shape to match what .populate() would do
+      {
+        $project: {
+          _id: 1,
+          pdfUrl: 1,
+          createdAt: 1,
+          student: '$studentInfo',
+          form: '$formInfo',
+        },
+      },
+      // 6. Sort by creation date
+      { $sort: { createdAt: -1 } },
+    ];
+
+    const submissions = await FormSubmission.aggregate(pipeline);
+    res.json(submissions);
+  } catch (error) {
+    console.error('Error fetching all submissions:', error);
+    res.status(500).json({ message: 'Server error while fetching submissions.' });
+  }
+};
+
 module.exports = {
   uploadForm,
   getAllForms,
@@ -184,4 +254,5 @@ module.exports = {
   getMySubmissions,
   getFormFilterOptions,
   getSubmissionById,
+  getAllSubmissions,
 };

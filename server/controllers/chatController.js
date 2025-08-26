@@ -4,14 +4,20 @@ const User = require('../models/User');
 
 const getMyConversation = async (req, res) => {
   try {
+    // Find the admin user first. In a larger app, you might have a more specific way to identify the primary contact.
+    const admin = await User.findOne({ role: 'admin' });
+    if (!admin) {
+      return res.status(404).json({ message: 'No admin available to start a chat.' });
+    }
+
+    // Find a conversation that has exactly the student and this admin as participants.
     let conversation = await Conversation.findOne({
-      participants: { $in: [req.user.id] },
+      participants: { $all: [req.user.id, admin._id], $size: 2 },
     });
 
+    // If no conversation exists, create one.
     if (!conversation) {
-      const admin = await User.findOne({ role: 'admin' });
-      if (!admin) return res.status(404).json({ message: 'No admin available to start a chat.' });
-
+      console.log(`Creating new conversation for student ${req.user.id} with admin ${admin._id}`);
       conversation = new Conversation({
         participants: [req.user.id, admin._id],
       });
@@ -20,6 +26,7 @@ const getMyConversation = async (req, res) => {
 
     res.json(conversation);
   } catch (error) {
+    console.error("Error in getMyConversation:", error);
     res.status(500).json({ message: 'Server error while fetching conversation.' });
   }
 };

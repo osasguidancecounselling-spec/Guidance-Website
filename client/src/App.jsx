@@ -1,10 +1,8 @@
 import { Routes, Route } from 'react-router-dom';
-import { AuthProvider } from './contexts/AuthContext';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import Login from './pages/Auth/Login';
 import Signup from './pages/Auth/Signup';
 import ForgotPassword from './pages/Auth/ForgotPassword';
-import AdminForgotPassword from './pages/Auth/AdminForgotPassword';
 import Dashboard from './pages/Dashboard/Home';
 import AppointmentsPage from './pages/Student/AppointmentsPage';
 import StudentChatPage from './pages/Student/StudentChatPage';
@@ -22,14 +20,13 @@ import Analytics from './pages/Admin/Analytics';
 import AdminSettingsPage from './pages/Admin/AdminSettingsPage';
 import StudentProfilePage from './pages/Admin/StudentProfilePage';
 import AdminFormViewer from "./pages/Admin/AdminFormViewer";
+import SubmissionViewer from './pages/Admin/SubmissionViewer';
 
 const App = () => (
-  <AuthProvider>
     <Routes>
       <Route path="/" element={<Login />} />
       <Route path="/signup" element={<Signup />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
-      <Route path="/admin-forgot-password" element={<AdminForgotPassword />} />
       <Route path="/dashboard" element={
         <ProtectedRoute allowedRoles={['student']}>
           <Dashboard />
@@ -80,6 +77,11 @@ const App = () => (
           <AdminForms />
         </ProtectedRoute>
       } />
+      <Route path="/admin/submissions/view/:submissionId" element={
+        <ProtectedRoute allowedRoles={['admin']}>
+          <SubmissionViewer />
+        </ProtectedRoute>
+      } />
       <Route path="/admin/resources" element={
         <ProtectedRoute allowedRoles={['admin']}>
           <Resources />
@@ -100,10 +102,13 @@ const App = () => (
           <AdminSettingsPage />
         </ProtectedRoute>
       } />
-      <Route path="/admin/forms/view/:filename" element={<AdminFormViewer />} />
+      <Route path="/admin/forms/view/:filename" element={
+        <ProtectedRoute allowedRoles={['admin']}>
+          <AdminFormViewer />
+        </ProtectedRoute>
+      } />
       <Route path="*" element={<NotFound />} />
     </Routes>
-  </AuthProvider>
 );
 
 export default App;

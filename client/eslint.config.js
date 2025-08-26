@@ -1,29 +1,60 @@
-import js from '@eslint/js'
-import globals from 'globals'
-import reactHooks from 'eslint-plugin-react-hooks'
-import reactRefresh from 'eslint-plugin-react-refresh'
-import { defineConfig, globalIgnores } from 'eslint/config'
+import globals from "globals";
+import pluginJs from "@eslint/js";
+import pluginReactConfig from "eslint-plugin-react/configs/recommended.js";
+import pluginReactHooks from "eslint-plugin-react-hooks";
+import pluginCypress from "eslint-plugin-cypress/flat";
+import pluginJest from "eslint-plugin-jest";
 
-export default defineConfig([
-  globalIgnores(['dist']),
+export default [
   {
-    files: ['**/*.{js,jsx}'],
-    extends: [
-      js.configs.recommended,
-      reactHooks.configs['recommended-latest'],
-      reactRefresh.configs.vite,
-    ],
+    ignores: ["dist/**", "node_modules/**"],
+  },
+  // Main React source code configuration
+  {
+    files: ["src/**/*.{js,jsx}"],
+    ...pluginReactConfig,
+    plugins: {
+      "react-hooks": pluginReactHooks,
+    },
     languageOptions: {
-      ecmaVersion: 2020,
-      globals: globals.browser,
-      parserOptions: {
-        ecmaVersion: 'latest',
-        ecmaFeatures: { jsx: true },
-        sourceType: 'module',
-      },
+      ...pluginReactConfig.languageOptions,
+      globals: { ...globals.browser },
     },
     rules: {
-      'no-unused-vars': ['error', { varsIgnorePattern: '^[A-Z_]' }],
+      ...pluginJs.configs.recommended.rules,
+      ...pluginReactConfig.rules,
+      ...pluginReactHooks.configs.recommended.rules,
+      "react/react-in-jsx-scope": "off",
+      "react/prop-types": "off",
+    },
+    settings: {
+      react: { version: "detect" },
     },
   },
-])
+  // Cypress end-to-end test configuration
+  {
+    files: ["cypress/e2e/**/*.cy.{js,jsx}"],
+    ...pluginCypress.configs.recommended,
+  },
+  // Jest unit/integration test configuration
+  {
+    files: ["src/**/__tests__/**/*.{js,jsx}", "src/**/*.{spec,test}.{js,jsx}"],
+    ...pluginJest.configs.flat.recommended,
+    languageOptions: {
+      globals: { ...globals.jest },
+    },
+    rules: {
+      ...pluginJest.configs.flat.recommended.rules,
+    },
+  },
+  // Configuration for project config files
+  {
+    files: ["*.config.js", "*.config.cjs", ".eslintrc.js"],
+    languageOptions: {
+      parserOptions: {
+        sourceType: "commonjs",
+      },
+      globals: { ...globals.node },
+    },
+  },
+];

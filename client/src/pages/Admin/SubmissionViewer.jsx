@@ -41,13 +41,6 @@ const SubmissionViewer = () => {
     );
   }
 
-  // Create a map of question labels to answers for easy lookup
-  const answerMap = submission.form.questions.reduce((acc, question) => {
-    const answerObj = submission.answers.find(a => a.label === question.label);
-    acc[question.label] = answerObj ? answerObj.value : 'No Answer Provided';
-    return acc;
-  }, {});
-
   return (
     <div className="submission-viewer-page">
       <div className="viewer-header">
@@ -73,14 +66,8 @@ const SubmissionViewer = () => {
 
       <div className="answers-card">
         <h3>Form Responses</h3>
-        <div className="answers-list">
-          {submission.form.questions.map((question, index) => (
-            <div key={index} className="answer-item">
-              <p className="question-label">{question.label}</p>
-              <p className="answer-value">{answerMap[question.label]}</p>
-            </div>
-          ))}
-        </div>
+        <p>The student's complete answers are available in the generated PDF document.</p>
+        <p>Click the "Download PDF" button above to view the full submission.</p>
       </div>
 
       <Link to="/admin/forms" className="back-link">← Back to All Submissions</Link>

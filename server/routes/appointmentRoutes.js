@@ -3,7 +3,7 @@ const router = express.Router();
 const {
   createAppointment,
   getAllAppointments,
-  getMyApointments,
+  getMyAppointments,
   updateAppointment,
 } = require('../controllers/appointmentController');
 const { protect, admin } = require('../middleware/authMiddleware');
@@ -15,7 +15,7 @@ router.route('/').post(protect, createAppointment);
 router.route('/').get(protect, admin, getAllAppointments);
 
 // Student gets their own appointments
-router.route('/my').get(protect, getMyApointments);
+router.route('/my').get(protect, getMyAppointments);
 
 // Admin updates an appointment
 router.route('/:id').put(protect, admin, updateAppointment);

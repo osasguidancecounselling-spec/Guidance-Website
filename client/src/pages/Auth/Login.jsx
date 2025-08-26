@@ -108,11 +108,11 @@ const Login = () => {
             </button>
           </div>
 
-          <div className="forgot-password">
-            <a href={isStudent ? "/forgot-password" : "/admin-forgot-password"}>
-              Forgot Password?
-            </a>
-          </div>
+          {isStudent && (
+            <div className="forgot-password">
+              <a href="/forgot-password">Forgot Password?</a>
+            </div>
+          )}
 
           <button type="submit" className="primary-button" disabled={isLoading}>
             {isLoading ? "Logging in..." : "Login"}

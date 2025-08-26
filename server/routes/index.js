@@ -4,7 +4,7 @@ const router = express.Router();
 const authRoutes = require('./auth.routes');
 const appointmentRoutes = require('./appointment.routes');
 const chatRoutes = require('./chat.routes');
-const formRoutes = require('./formRoutes.js');
+const formRoutes = require('./form.routes.js');
 
 router.use('/auth', authRoutes);
 router.use('/appointments', appointmentRoutes);

@@ -1,13 +1,14 @@
 services:
   # --------------------- #
-  #   Backend Web Service #
+  #  Backend Web Service  #
   # --------------------- #
   - type: web
     name: guidance-counseling-api
-    runtime: node
-    plan: starter   # backend cannot be free
-    buildCommand: npm install && npm run create-dirs
-    startCommand: npm start
+    rootDir: server
+    env: node
+    plan: free
+    buildCommand: npm install
+    startCommand: node index.js
     healthCheckPath: /api/health
     envVars:
       - key: NODE_ENV
@@ -23,7 +24,6 @@ services:
       - key: JWT_SECRET
         sync: false
 
-<<<<<<< HEAD
   # ---------------------- #
   #  Frontend Static Site  #
   # ---------------------- #
@@ -31,28 +31,15 @@ services:
     name: guidance-counseling-client
     rootDir: client
     plan: free
-=======
-  # ----------------------------- #
-  #   Frontend Static Site (SPA) #
-  # ----------------------------- #
-  - type: web
-    name: guidance-counseling-client
-    runtime: static
-    plan: free     # frontend can stay free
->>>>>>> c3bff81de7a40e90c0cc86e7fd77225e389f9c31
     buildCommand: npm install && npm run build
-    staticPublishPath: ./dist
+    publishDir: ./dist
     routes:
       - type: rewrite
         source: /*
         destination: /index.html
     envVars:
       - key: VITE_API_URL
-<<<<<<< HEAD
         fromService:
           type: web
           name: guidance-counseling-api
           property: url
-=======
-        value: "https://will-be-set-manually.com" # Placeholder
->>>>>>> c3bff81de7a40e90c0cc86e7fd77225e389f9c31
