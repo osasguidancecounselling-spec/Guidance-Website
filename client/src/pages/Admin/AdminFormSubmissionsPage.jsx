@@ -40,8 +40,8 @@ const AdminFormSubmissionsPage = () => {
       <div className="submissions-list">
         {submissions.map((sub) => (
           <div key={sub._id} className="submission-card">
-            <p><strong>Submitted by:</strong> {sub.studentName || 'Unknown'}</p>
-            <p><strong>Student Number:</strong> {sub.studentNumber || 'N/A'}</p>
+            <p><strong>Submitted by:</strong> {sub.student?.name || 'Unknown'}</p>
+            <p><strong>Student Number:</strong> {sub.student?.studentNumber || 'N/A'}</p>
             <p><strong>Date:</strong> {new Date(sub.createdAt).toLocaleString()}</p>
             <Link 
               to={`/admin/forms/${formId}/submissions/${sub._id}`} 

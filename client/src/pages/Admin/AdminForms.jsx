@@ -111,7 +111,8 @@ const AdminForms = () => {
       window.URL.revokeObjectURL(url);
       setSelectedSubmissions([]); // Clear selection after download
     } catch (err) {
-      toast.error('Failed to download batch. Please try again.');
+      const errorMessage = err.response?.data?.message || 'Failed to download batch. Please try again.';
+      toast.error(errorMessage);
       console.error(err);
     } finally {
       setIsDownloading(false);

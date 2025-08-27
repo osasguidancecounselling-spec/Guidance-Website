@@ -3,8 +3,10 @@ const Form = require('../models/Form');
 const axios = require('axios');
 const FormSubmission = require('../models/FormSubmission');
 const User = require('../models/User');
+const mongoose = require('mongoose');
 const cloudinary = require('../config/cloudinary');
 const { parseDocx, generatePdf } = require('../utils/formUtils');
+const jszip = require('jszip');
 
 const uploadForm = async (req, res) => {
   try {
@@ -63,18 +65,34 @@ const getFormById = async (req, res) => {
 const submitForm = async (req, res) => {
   try {
     const form = await Form.findById(req.params.id);
-    if (!form) return res.status(404).json({ message: 'Form not found' });
+    if (!form) {
+      return res.status(404).json({ message: 'Form not found' });
+    }
+
+    // Fetch the user to get their name for the filename
+    const user = await User.findById(req.user.id).select('name').lean();
+    if (!user) {
+      return res.status(404).json({ message: 'Submitting user not found.' });
+    }
 
     const { answers, studentInfo } = req.body;
-    // This function should be adapted to return a buffer instead of a file path
-    const { pdfBuffer, filename } = await generatePdf(form, answers, studentInfo);
+    // Generate a unique ID for this submission to ensure the filename is unique.
+    const submissionId = new mongoose.Types.ObjectId();
+
+    // The filename from generatePdf is no longer used; we create our own.
+    const { pdfBuffer } = await generatePdf(form, answers, studentInfo, submissionId);
+
+    // Create a descriptive and safe filename to prevent overwrites and be human-readable.
+    const studentName = user.name.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+    const formTitle = form.title.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+    const publicId = `${studentName}_${formTitle}_${submissionId}`;
 
     // Upload the generated PDF buffer to Cloudinary
     const uploadResult = await new Promise((resolve, reject) => {
       const uploadStream = cloudinary.uploader.upload_stream(
         {
           folder: 'gcs_submissions',
-          public_id: filename,
+          public_id: publicId,
           resource_type: 'raw',
         },
         (error, result) => {
@@ -86,6 +104,7 @@ const submitForm = async (req, res) => {
     });
 
     const submission = new FormSubmission({
+      _id: submissionId, // Use the pre-generated ID
       form: form._id,
       student: req.user.id,
       pdfUrl: uploadResult.secure_url,
@@ -93,7 +112,7 @@ const submitForm = async (req, res) => {
     });
     await submission.save();
 
-    res.status(201).json({ message: 'Form submitted successfully.', filename });
+    res.status(201).json({ message: 'Form submitted successfully.', filename: `${publicId}.pdf` });
   } catch (error) {
     console.error('Error submitting form:', error);
     res.status(500).json({ message: 'Server error during form submission.' });
@@ -103,24 +122,32 @@ const submitForm = async (req, res) => {
 const deleteForm = async (req, res) => {
   try {
     const form = await Form.findById(req.params.id);
-    if (!form) return res.status(404).json({ message: 'Form not found' });
+    if (!form) {
+      return res.status(404).json({ message: 'Form not found' });
+    }
 
     // Delete the form template from Cloudinary
     if (form.filePublicId) {
-      await cloudinary.uploader.destroy(form.filePublicId);
-    } 
+      // Specify resource_type for raw files like .docx
+      await cloudinary.uploader.destroy(form.filePublicId, { resource_type: 'raw' });
+    }
 
     const submissions = await FormSubmission.find({ form: form._id });
-    for (const sub of submissions) {
-      // Delete each submission PDF from Cloudinary
-      if (sub.pdfPublicId) await cloudinary.uploader.destroy(sub.pdfPublicId);
-    }
+
+    // Concurrently delete all submission PDFs from Cloudinary
+    const deletePromises = submissions
+      .filter(sub => sub.pdfPublicId)
+      .map(sub => cloudinary.uploader.destroy(sub.pdfPublicId, { resource_type: 'raw' }));
+
+    await Promise.all(deletePromises);
+
     await FormSubmission.deleteMany({ form: form._id });
     await Form.findByIdAndDelete(req.params.id);
 
     res.json({ message: 'Form and related submissions deleted.' });
   } catch (error) {
-    res.status(500).json({ message: 'Server error' });
+    console.error('Error deleting form:', error);
+    res.status(500).json({ message: 'Server error while deleting form.' });
   }
 };
 
@@ -244,6 +271,61 @@ const getAllSubmissions = async (req, res) => {
   }
 };
 
+const batchDownloadSubmissions = async (req, res) => {
+  try {
+    const { submissionIds } = req.body;
+
+    if (!submissionIds || !Array.isArray(submissionIds) || submissionIds.length === 0) {
+      return res.status(400).json({ message: 'Submission IDs are required.' });
+    }
+
+    // Fetch all submissions at once to get their PDF URLs and student/form info
+    const submissions = await FormSubmission.find({
+      _id: { $in: submissionIds },
+    }).populate('student', 'name').populate('form', 'title');
+
+    if (submissions.length === 0) {
+      return res.status(404).json({ message: 'No valid submissions found.' });
+    }
+
+    const zip = new jszip();
+
+    // Use Promise.all to fetch all PDFs from Cloudinary concurrently
+    await Promise.all(
+      submissions.map(async (sub) => {
+        if (sub.pdfUrl && sub.student && sub.form) {
+          try {
+            const response = await axios.get(sub.pdfUrl, {
+              responseType: 'arraybuffer',
+            });
+            // Sanitize filename to prevent issues
+            const studentName = sub.student.name.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+            const formTitle = sub.form.title.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+            const filename = `${studentName}_${formTitle}_${sub._id}.pdf`;
+            
+            zip.file(filename, response.data);
+          } catch (fetchError) {
+            console.error(`Failed to fetch PDF for submission ${sub._id}:`, fetchError.message);
+          }
+        }
+      })
+    );
+
+    // Check if any files were added to the zip before sending
+    if (Object.keys(zip.files).length === 0) {
+      return res.status(404).json({ message: 'Could not retrieve any of the selected submission files.' });
+    }
+
+    const zipBuffer = await zip.generateAsync({ type: 'nodebuffer' });
+    res.setHeader('Content-Type', 'application/zip');
+    res.setHeader('Content-Disposition', 'attachment; filename="submissions.zip"');
+    res.send(zipBuffer);
+  } catch (error) {
+    console.error('Error during batch download:', error);
+    res.status(500).json({ message: 'Server error during batch download.' });
+  }
+};
+
 module.exports = {
   uploadForm,
   getAllForms,
@@ -255,4 +337,5 @@ module.exports = {
   getFormFilterOptions,
   getSubmissionById,
   getAllSubmissions,
+  batchDownloadSubmissions,
 };

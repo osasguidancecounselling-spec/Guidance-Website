@@ -30,7 +30,7 @@ This is a comprehensive web application designed to streamline the guidance and 
 - **Real-time Communication**: Socket.IO
 - **Authentication**: JSON Web Tokens (JWT)
 - **File Storage**: Cloudinary (for form templates and PDF submissions)
-- **Form Processing**: `docx-parser` for reading templates, `pdf-lib` for generating PDFs.
+- **Form Processing**: `mammoth` for reading .docx templates, `pdf-lib` for generating PDFs.
 - **Styling**: CSS
 
 ## 🚀 Getting Started
