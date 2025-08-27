@@ -1,0 +1,59 @@
+.analytics-page {
+  padding: 20px;
+  font-family: Arial, sans-serif;
+}
+
+.analytics-header {
+  margin-bottom: 20px;
+}
+
+.time-range-selector {
+  margin-top: 10px;
+}
+
+.analytics-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.stat-card {
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 15px;
+  background-color: #f9f9f9;
+  flex: 1;
+  min-width: 250px;
+}
+
+.stat-numbers {
+  display: flex;
+  flex-direction: column;
+}
+
+.stat-item {
+  margin: 5px 0;
+}
+
+.stat-label {
+  font-weight: bold;
+}
+
+.stat-value {
+  font-size: 1.2em;
+}
+
+.popular-resources {
+  flex: 1;
+  min-width: 300px;
+}
+
+.resource-list {
+  margin-top: 10px;
+}
+
+.resource-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 5px 0;
+}
