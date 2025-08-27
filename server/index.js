@@ -97,14 +97,13 @@ io.on('connection', (socket) => {
         sender: socket.user.id, // Use the authenticated user's ID
         text,
       });
-      await message.save();
 
-      const populatedMessage = await Message.findById(message._id).populate('sender', 'name role');
+      await message.save();
+      // Populate the sender details directly on the saved document instance
+      const populatedMessage = await message.populate('sender', 'name role');
 
       io.to(conversationId).emit('receiveMessage', populatedMessage);
-
       await Conversation.findByIdAndUpdate(conversationId, { lastMessage: populatedMessage._id });
-
     } catch (error) {
       console.error('Error handling message:', error);
       socket.emit('messageError', { message: 'Could not send message.' });

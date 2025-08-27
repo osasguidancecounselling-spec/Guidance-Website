@@ -27,6 +27,7 @@ const createAppointment = async (req, res) => {
 
     res.status(201).json(createdAppointment);
   } catch (error) {
+    console.error('Error creating appointment:', error);
     res.status(500).json({ message: 'Server error while creating appointment.' });
   }
 };
@@ -34,7 +35,7 @@ const createAppointment = async (req, res) => {
 const getAllAppointments = async (req, res) => {
   try {
     const appointments = await Appointment.find({})
-      .populate('student', 'name studentNumber email')
+      .populate('student', 'name studentNumber email course year section')
       .sort({ createdAt: -1 });
     res.json(appointments);
   } catch (error) {
@@ -45,10 +46,11 @@ const getAllAppointments = async (req, res) => {
 const getMyAppointments = async (req, res) => {
   try {
     const appointments = await Appointment.find({ student: req.user.id })
-      .populate('student', 'name studentNumber email')
+      .populate('student', 'name studentNumber email course year section')
       .sort({ createdAt: -1 });
     res.json(appointments);
   } catch (error) {
+    console.error('Error fetching user appointments:', error);
     res.status(500).json({ message: 'Server error while fetching appointments.' });
   }
 };
