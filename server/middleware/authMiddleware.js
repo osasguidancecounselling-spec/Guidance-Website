@@ -33,4 +33,12 @@ const admin = (req, res, next) => {
   }
 };
 
-module.exports = { protect, admin };
+const counselor = (req, res, next) => {
+  if (req.user && (req.user.role === 'counselor' || req.user.role === 'admin')) {
+    next();
+  } else {
+    res.status(403).json({ message: 'Access denied. Counselor or Admin required.' });
+  }
+};
+
+module.exports = { protect, admin, counselor };

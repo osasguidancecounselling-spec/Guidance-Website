@@ -17,7 +17,7 @@ const UserSchema = new mongoose.Schema({
   studentNumber: { type: String, unique: true, sparse: true }, // sparse allows multiple nulls
   role: {
     type: String,
-    enum: ['student', 'admin'],
+    enum: ['student', 'counselor', 'admin'],
     default: 'student',
   },
   course: { type: String },

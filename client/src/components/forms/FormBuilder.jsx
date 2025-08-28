@@ -1,10 +1,14 @@
 import React, { useState } from 'react';
+import { formService } from '../../services/formService';
+import { toast } from 'react-toastify';
 
-const FormBuilder = () => {
+const FormBuilder = ({ onFormCreated }) => {
   const [formTitle, setFormTitle] = useState('');
   const [fields, setFields] = useState([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const addField = () => {
+    // Add a new field with a unique temporary ID for the key prop
     setFields([...fields, { label: '', type: 'text', required: false }]);
   };
 
@@ -19,10 +23,41 @@ const FormBuilder = () => {
     setFields(newFields);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // TODO: Submit form data to backend
-    console.log({ formTitle, fields });
+    if (!formTitle.trim()) {
+      toast.warn('Please provide a form title.');
+      return;
+    }
+    if (fields.length === 0) {
+      toast.warn('Please add at least one field to the form.');
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    // Transform frontend fields to match backend `questions` schema
+    // The backend model expects `question`, not `label`.
+    const questions = fields.map(field => ({
+      question: field.label,
+      type: field.type,
+      // 'required' is not in the backend model, so it's not sent
+    }));
+
+    try {
+      const response = await formService.createForm({ title: formTitle, questions });
+      toast.success(response.message || 'Form created successfully!');
+      
+      // Reset form state
+      setFormTitle('');
+      setFields([]);
+
+      if (onFormCreated) onFormCreated(response.form);
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Failed to create form.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -71,7 +106,9 @@ const FormBuilder = () => {
             <button type="button" onClick={() => removeField(index)}>Remove</button>
           </div>
         ))}
-        <button type="submit">Save Form</button>
+        <button type="submit" disabled={isSubmitting}>
+          {isSubmitting ? 'Saving...' : 'Save Form'}
+        </button>
       </form>
     </div>
   );

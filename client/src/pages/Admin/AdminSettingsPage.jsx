@@ -1,130 +1,98 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { settingsService } from '../../services/settingsService';
+import { toast } from 'react-toastify';
 import './AdminSettingsPage.css';
 
+const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+
 const AdminSettingsPage = () => {
-  const [settings, setSettings] = useState({
-    emailNotifications: true,
-    smsNotifications: false,
-    appointmentReminders: true,
-    systemMaintenance: false,
-    theme: 'light',
-    language: 'en'
-  });
+  const [availability, setAvailability] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
 
-  const handleSettingChange = (setting, value) => {
-    setSettings(prev => ({
-      ...prev,
-      [setting]: value
-    }));
+  const fetchAvailability = useCallback(async () => {
+    try {
+      setLoading(true);
+      const data = await settingsService.getAvailability();
+      const fullAvailability = daysOfWeek.map((day) => {
+        const existing = data.find(d => d.dayOfWeek === day);
+        return existing || { dayOfWeek: day, isAvailable: false, startTime: '09:00', endTime: '17:00' };
+      });
+      setAvailability(fullAvailability);
+    } catch (err) {
+      toast.error('Failed to load availability settings.');
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchAvailability();
+  }, [fetchAvailability]);
+
+  const handleAvailabilityChange = (index, field, value) => {
+    const newAvailability = [...availability];
+    newAvailability[index] = { ...newAvailability[index], [field]: value };
+    setAvailability(newAvailability);
   };
 
-  const handleSaveSettings = () => {
-    // In a real app, this would save to an API
-    console.log('Saving settings:', settings);
-    alert('Settings saved successfully!');
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setIsSaving(true);
+    try {
+      await settingsService.updateAvailability(availability);
+      toast.success('Availability updated successfully!');
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Failed to save settings.');
+      console.error(err);
+    } finally {
+      setIsSaving(false);
+    }
   };
+
+  if (loading) {
+    return <p>Loading settings...</p>;
+  }
 
   return (
     <div className="admin-settings-page">
-      <div className="settings-header">
-        <h1>Admin Settings</h1>
-        <p>Manage system settings and preferences</p>
-      </div>
-
-      <div className="settings-content">
-        <div className="settings-section">
-          <h2>Notification Settings</h2>
-          <div className="setting-item">
-            <label>
+      <h2>Counselor Availability</h2>
+      <p>Set the days and times when counselors are available for appointments.</p>
+      <form className="availability-form" onSubmit={handleSubmit}>
+        {availability.map((day, index) => (
+          <div key={day.dayOfWeek} className="availability-day-row">
+            <span className="day-name">{day.dayOfWeek}</span>
+            <div className="day-controls">
               <input
                 type="checkbox"
-                checked={settings.emailNotifications}
-                onChange={(e) => handleSettingChange('emailNotifications', e.target.checked)}
+                id={`available-${day.dayOfWeek}`}
+                checked={day.isAvailable}
+                onChange={(e) => handleAvailabilityChange(index, 'isAvailable', e.target.checked)}
               />
-              Email Notifications
-            </label>
-          </div>
-          <div className="setting-item">
-            <label>
+              <label htmlFor={`available-${day.dayOfWeek}`}>Available</label>
+            </div>
+            <div className="time-inputs">
               <input
-                type="checkbox"
-                checked={settings.smsNotifications}
-                onChange={(e) => handleSettingChange('smsNotifications', e.target.checked)}
+                type="time"
+                value={day.startTime}
+                onChange={(e) => handleAvailabilityChange(index, 'startTime', e.target.value)}
+                disabled={!day.isAvailable}
               />
-              SMS Notifications
-            </label>
-          </div>
-          <div className="setting-item">
-            <label>
+              <span>to</span>
               <input
-                type="checkbox"
-                checked={settings.appointmentReminders}
-                onChange={(e) => handleSettingChange('appointmentReminders', e.target.checked)}
+                type="time"
+                value={day.endTime}
+                onChange={(e) => handleAvailabilityChange(index, 'endTime', e.target.value)}
+                disabled={!day.isAvailable}
               />
-              Appointment Reminders
-            </label>
+            </div>
           </div>
-        </div>
-
-        <div className="settings-section">
-          <h2>System Settings</h2>
-          <div className="setting-item">
-            <label>
-              <input
-                type="checkbox"
-                checked={settings.systemMaintenance}
-                onChange={(e) => handleSettingChange('systemMaintenance', e.target.checked)}
-              />
-              System Maintenance Mode
-            </label>
-          </div>
-          <div className="setting-item">
-            <label>Theme:</label>
-            <select
-              value={settings.theme}
-              onChange={(e) => handleSettingChange('theme', e.target.value)}
-            >
-              <option value="light">Light</option>
-              <option value="dark">Dark</option>
-              <option value="auto">Auto</option>
-            </select>
-          </div>
-          <div className="setting-item">
-            <label>Language:</label>
-            <select
-              value={settings.language}
-              onChange={(e) => handleSettingChange('language', e.target.value)}
-            >
-              <option value="en">English</option>
-              <option value="es">Spanish</option>
-              <option value="fr">French</option>
-              <option value="de">German</option>
-            </select>
-          </div>
-        </div>
-
-        <div className="settings-section">
-          <h2>User Management</h2>
-          <div className="setting-item">
-            <button className="btn-manage-users">Manage Users</button>
-          </div>
-          <div className="setting-item">
-            <button className="btn-backup-data">Backup Data</button>
-          </div>
-          <div className="setting-item">
-            <button className="btn-system-logs">View System Logs</button>
-          </div>
-        </div>
-
-        <div className="settings-actions">
-          <button className="btn-save" onClick={handleSaveSettings}>
-            Save Settings
-          </button>
-          <button className="btn-reset">
-            Reset to Defaults
-          </button>
-        </div>
-      </div>
+        ))}
+        <button type="submit" className="btn-save-settings" disabled={isSaving}>
+          {isSaving ? 'Saving...' : 'Save Settings'}
+        </button>
+      </form>
     </div>
   );
 };

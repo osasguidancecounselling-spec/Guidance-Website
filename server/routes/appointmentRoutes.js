@@ -4,20 +4,24 @@ const {
   createAppointment,
   getAllAppointments,
   getMyAppointments,
-  updateAppointment,
+  updateAppointmentDetails,
+  getAvailableCounselors,
 } = require('../controllers/appointmentController');
-const { protect, admin } = require('../middleware/authMiddleware');
+const { protect, admin, counselor } = require('../middleware/authMiddleware');
 
-// Student creates an appointment
-router.route('/').post(protect, createAppointment);
+router
+  .route('/')
+  .post(protect, createAppointment) // Student creates an appointment
+  .get(protect, admin, getAllAppointments); // Admin gets all appointments
 
-// Admin gets all appointments
-router.route('/').get(protect, admin, getAllAppointments);
+// Get all users with counselor role (for assignment dropdown)
+router.get('/counselors', protect, admin, getAvailableCounselors);
 
-// Student gets their own appointments
-router.route('/my').get(protect, getMyAppointments);
+// Student or Counselor gets their own appointments
+router.get('/my', protect, getMyAppointments);
 
-// Admin updates an appointment
-router.route('/:id').put(protect, admin, updateAppointment);
+// Admin or Counselor updates an appointment (status, assignment, notes)
+// The `counselor` middleware allows both counselors and admins.
+router.put('/:id', protect, counselor, updateAppointmentDetails);
 
 module.exports = router;

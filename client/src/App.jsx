@@ -19,6 +19,8 @@ import Resources from './pages/Admin/Resources';
 import Analytics from './pages/Admin/Analytics';
 import AdminSettingsPage from './pages/Admin/AdminSettingsPage';
 import StudentProfilePage from './pages/Admin/StudentProfilePage';
+import CounselorAppointments from './pages/Counselor/CounselorAppointments';
+import CounselorDashboard from './pages/Dashboard/CounselorDashboard';
 import AdminFormViewer from "./pages/Admin/AdminFormViewer";
 import SubmissionViewer from './pages/Admin/SubmissionViewer';
 

@@ -7,6 +7,10 @@ const AppointmentSchema = new mongoose.Schema(
       required: true,
       ref: 'User',
     },
+    counselor: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+    },
     subject: {
       type: String,
       required: [true, 'Please add a subject'],
@@ -19,13 +23,20 @@ const AppointmentSchema = new mongoose.Schema(
       type: Date,
       required: [true, 'Please add a preferred date'],
     },
+    preferredTime: {
+      type: String,
+      required: [true, 'Please add a preferred time'],
+    },
+    scheduledDateTime: {
+      type: Date,
+    },
     status: {
       type: String,
       required: true,
-      enum: ['Pending', 'Approved', 'Cancelled', 'Completed'],
+      enum: ['Pending', 'Scheduled', 'Cancelled', 'Completed', 'Rescheduled'],
       default: 'Pending',
     },
-    adminNotes: { type: String },
+    counselorNotes: { type: String },
   },
   { timestamps: true }
 );

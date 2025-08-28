@@ -5,6 +5,7 @@ const FormSubmission = require('../models/FormSubmission');
 const User = require('../models/User');
 const mongoose = require('mongoose');
 const cloudinary = require('../config/cloudinary');
+const Appointment = require('../models/Appointment');
 const { parseDocx, generatePdf } = require('../utils/formUtils');
 const jszip = require('jszip');
 
@@ -40,6 +41,35 @@ const uploadForm = async (req, res) => {
   } catch (error) {
     console.error('Error uploading form:', error);
     res.status(500).json({ message: 'Server error during form upload.' });
+  }
+};
+
+const createFormFromBuilder = async (req, res) => {
+  try {
+    const { title, questions } = req.body;
+
+    if (!title || !questions || !Array.isArray(questions) || questions.length === 0) {
+      return res.status(400).json({ message: 'Title and at least one question are required.' });
+    }
+
+    // The `filename` field is required and unique in the Form model.
+    // We'll generate one for forms created via the builder.
+    const filename = `${title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_${Date.now()}.builder`;
+
+    const newForm = new Form({
+      title,
+      questions, // Frontend sends { question, type } which matches the model
+      filename,
+    });
+
+    await newForm.save();
+    res.status(201).json({ message: 'Form created successfully.', form: newForm });
+  } catch (error) {
+    console.error('Error creating form from builder:', error);
+    if (error.code === 11000) {
+      return res.status(409).json({ message: 'A form with this name might already exist. Please try a different title.' });
+    }
+    res.status(500).json({ message: 'Server error during form creation.' });
   }
 };
 
@@ -271,6 +301,30 @@ const getAllSubmissions = async (req, res) => {
   }
 };
 
+const getSubmissionsForCounselor = async (req, res) => {
+  try {
+    const counselorId = req.user._id;
+
+    // Find all unique student IDs from appointments assigned to this counselor
+    const appointments = await Appointment.find({ counselor: counselorId }).distinct('student');
+
+    if (appointments.length === 0) {
+      return res.json([]); // No students assigned, so no submissions to show
+    }
+
+    // Find all submissions from those students
+    const submissions = await FormSubmission.find({ student: { $in: appointments } })
+      .populate('student', 'name studentNumber course year section')
+      .populate('form', 'title')
+      .sort({ createdAt: -1 });
+
+    res.json(submissions);
+  } catch (error) {
+    console.error('Error fetching submissions for counselor:', error);
+    res.status(500).json({ message: 'Server error while fetching submissions.' });
+  }
+};
+
 const batchDownloadSubmissions = async (req, res) => {
   try {
     const { submissionIds } = req.body;
@@ -327,6 +381,7 @@ const batchDownloadSubmissions = async (req, res) => {
 };
 
 module.exports = {
+  createFormFromBuilder,
   uploadForm,
   getAllForms,
   getFormById,
@@ -338,4 +393,5 @@ module.exports = {
   getSubmissionById,
   getAllSubmissions,
   batchDownloadSubmissions,
+  getSubmissionsForCounselor,
 };

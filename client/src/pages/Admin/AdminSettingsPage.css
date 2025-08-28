@@ -1,84 +1,93 @@
 .admin-settings-page {
-  padding: 20px;
-  font-family: Arial, sans-serif;
+  padding: 2rem;
+  background-color: #f9fafb;
+  height: 100%;
 }
 
-.settings-header {
-  margin-bottom: 20px;
+.admin-settings-page h2 {
+  font-size: 1.8rem;
+  margin-bottom: 0.5rem;
+  color: #1f2937;
 }
 
-.settings-content {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
+.admin-settings-page p {
+  margin-bottom: 2rem;
+  color: #6b7280;
 }
 
-.settings-section {
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  padding: 15px;
-  background-color: #f9f9f9;
+.availability-form {
+  background-color: #ffffff;
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  max-width: 700px;
 }
 
-.setting-item {
-  margin: 10px 0;
+.availability-day-row {
+  display: grid;
+  grid-template-columns: 120px 1fr 2fr;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 0;
+  border-bottom: 1px solid #e5e7eb;
 }
 
-.setting-item label {
+.availability-day-row:last-child {
+  border-bottom: none;
+}
+
+.day-name {
+  font-weight: 600;
+  color: #374151;
+}
+
+.day-controls {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 0.5rem;
 }
 
-.setting-item select {
-  padding: 5px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-}
-
-.btn-manage-users,
-.btn-backup-data,
-.btn-system-logs {
-  padding: 8px 12px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  background-color: #f0f0f0;
+.day-controls input[type="checkbox"] {
+  width: 1.25rem;
+  height: 1.25rem;
   cursor: pointer;
 }
 
-.btn-manage-users:hover,
-.btn-backup-data:hover,
-.btn-system-logs:hover {
-  background-color: #e0e0e0;
+.day-controls label {
+  cursor: pointer;
+  user-select: none;
 }
 
-.settings-actions {
-  margin-top: 20px;
+.time-inputs {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
-.btn-save,
-.btn-reset {
-  padding: 10px 15px;
+.time-inputs input[type="time"] {
+  padding: 0.5rem;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  background-color: #f9fafb;
+}
+
+.time-inputs input:disabled {
+  background-color: #e5e7eb;
+  cursor: not-allowed;
+}
+
+.btn-save-settings {
+  margin-top: 2rem;
+  padding: 0.75rem 1.5rem;
+  background-color: #3b82f6;
+  color: white;
   border: none;
-  border-radius: 4px;
+  border-radius: 6px;
+  font-weight: 600;
   cursor: pointer;
-  margin-right: 10px;
+  transition: background-color 0.2s;
 }
 
-.btn-save {
-  background-color: #007bff;
-  color: white;
-}
-
-.btn-save:hover {
-  background-color: #0056b3;
-}
-
-.btn-reset {
-  background-color: #6c757d;
-  color: white;
-}
-
-.btn-reset:hover {
-  background-color: #545b62;
+.btn-save-settings:hover {
+  background-color: #2563eb;
 }

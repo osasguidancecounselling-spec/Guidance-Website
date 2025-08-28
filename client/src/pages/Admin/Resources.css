@@ -1,55 +1,78 @@
 .admin-resources-page {
   padding: 20px;
-  font-family: Arial, sans-serif;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
-.admin-resources-header {
+.resources-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   margin-bottom: 20px;
 }
 
-.admin-resources-controls {
-  margin-bottom: 30px;
+.resources-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
-.admin-resources-table {
-  width: 100%;
-  border-collapse: collapse;
+.resource-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 15px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  background: #fff;
 }
 
-.admin-resources-table th,
-.admin-resources-table td {
-  border: 1px solid #ccc;
-  padding: 8px;
-  text-align: left;
+.resource-info {
+  flex: 1;
 }
 
-.admin-resources-table th {
-  background-color: #f2f2f2;
+.resource-actions {
+  display: flex;
+  gap: 10px;
 }
 
-.admin-resources-table tr:hover {
-  background-color: #f1f1f1;
-}
-
-.admin-resources-form input,
-.admin-resources-form select,
-.admin-resources-form textarea {
-  width: 100%;
-  padding: 10px;
-  margin: 5px 0;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-}
-
-.admin-resources-form button {
-  padding: 10px 15px;
+.primary-button {
   background-color: #007bff;
   color: white;
   border: none;
-  border-radius: 4px;
+  padding: 10px 15px;
+  border-radius: 5px;
   cursor: pointer;
 }
 
-.admin-resources-form button:hover {
-  background-color: #0056b3;
+.secondary-button {
+  background-color: #6c757d;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal {
+  background: white;
+  padding: 20px;
+  border-radius: 5px;
+  width: 400px;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: space-between;
 }

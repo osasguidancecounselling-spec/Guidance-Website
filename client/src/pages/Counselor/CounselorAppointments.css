@@ -1,0 +1,39 @@
+.counselor-appointments {
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.counselor-appointments h2 {
+  margin-bottom: 20px;
+  color: #333;
+}
+
+.counselor-appointments ul {
+  list-style: none;
+  padding: 0;
+}
+
+.counselor-appointments li {
+  background: white;
+  padding: 15px;
+  margin-bottom: 10px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border-left: 4px solid #007bff;
+}
+
+.counselor-appointments p {
+  margin: 5px 0;
+  color: #333;
+}
+
+@media (max-width: 768px) {
+  .counselor-appointments {
+    padding: 10px;
+  }
+  
+  .counselor-appointments li {
+    padding: 10px;
+  }
+}

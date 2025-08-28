@@ -1,9 +1,10 @@
 const express = require('express');
 const router = express.Router();
-const { protect, admin } = require('../middleware/authMiddleware');
+const { protect, admin, counselor } = require('../middleware/authMiddleware');
 const upload = require('../middleware/upload');
 const {
   uploadForm,
+  createFormFromBuilder,
   getAllForms,
   getFormById,
   submitForm,
@@ -13,12 +14,16 @@ const {
   getFormFilterOptions,
   getSubmissionById,
   getAllSubmissions,
+  getSubmissionsForCounselor,
 } = require('../controllers/formController');
 
 // === Admin Routes (Protected by admin middleware) ===
 
-// Upload a new .docx form template
-router.post('/upload', protect, admin, upload.single('formFile'), uploadForm);
+// Create a new form from the form builder UI
+router.post('/create', protect, admin, createFormFromBuilder);
+
+// Upload a new .docx form template (Corrected from 'formFile' to 'formDocx')
+router.post('/upload', protect, admin, upload.single('formDocx'), uploadForm);
 
 // Delete a form template and all its submissions
 router.delete('/:id', protect, admin, deleteForm);
@@ -34,6 +39,9 @@ router.get('/submissions/all', protect, admin, getAllSubmissions);
 
 // Get a single submission by its ID for the detailed viewer
 router.get('/submissions/:id', protect, admin, getSubmissionById);
+
+// === Counselor Routes ===
+router.get('/counselor-submissions', protect, counselor, getSubmissionsForCounselor);
 
 // === Student & General Routes (Protected by standard login) ===
 

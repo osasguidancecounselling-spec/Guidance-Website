@@ -43,6 +43,11 @@ export const formService = {
     return data;
   },
 
+  createForm: async (formData) => {
+    const { data } = await api.post('/forms/create', formData);
+    return data;
+  },
+
   deleteForm: async (id) => {
     const { data } = await api.delete(`/forms/${id}`);
     return data;
@@ -54,7 +59,12 @@ export const formService = {
   },
 
   getMySubmissions: async () => {
-    const { data } = await api.get('/forms/submissions/my');
+    const { data } = await api.get('/forms/my-submissions');
+    return data;
+  },
+
+  getSubmissionsForCounselor: async () => {
+    const { data } = await api.get('/forms/counselor-submissions');
     return data;
   },
 };

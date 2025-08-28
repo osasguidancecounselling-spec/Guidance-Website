@@ -1,153 +1,149 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { FaPlus, FaEdit, FaTrash, FaDownload } from 'react-icons/fa';
+import resourceService from '../../services/resourceService';
 import './Resources.css';
 
 const Resources = () => {
-  const [resources, setResources] = useState([
-    {
-      id: 1,
-      title: 'College Application Guide',
-      category: 'college',
-      description: 'Comprehensive guide to college applications, deadlines, and requirements',
-      uploadDate: '2024-01-15',
-      downloads: 245
-    },
-    {
-      id: 2,
-      title: 'Scholarship Database',
-      category: 'financial',
-      description: 'Database of available scholarships with deadlines and requirements',
-      uploadDate: '2024-01-10',
-      downloads: 189
-    },
-    {
-      id: 3,
-      title: 'Career Assessment Test',
-      category: 'career',
-      description: 'Interactive career assessment tool for students',
-      uploadDate: '2024-01-08',
-      downloads: 312
-    }
-  ]);
-
-  const [newResource, setNewResource] = useState({
+  const [resources, setResources] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [formData, setFormData] = useState({
     title: '',
-    category: '',
     description: '',
-    file: null
+    fileType: '',
+    filePath: ''
   });
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setNewResource(prev => ({
-      ...prev,
-      [name]: value
-    }));
-  };
+  useEffect(() => {
+    fetchResources();
+  }, []);
 
-  const handleFileUpload = (e) => {
-    setNewResource(prev => ({
-      ...prev,
-      file: e.target.files[0]
-    }));
-  };
-
-  const handleAddResource = (e) => {
-    e.preventDefault();
-    if (newResource.title && newResource.category && newResource.file) {
-      const newResourceObj = {
-        id: resources.length + 1,
-        title: newResource.title,
-        category: newResource.category,
-        description: newResource.description,
-        uploadDate: new Date().toISOString().split('T')[0],
-        downloads: 0
-      };
-      setResources(prev => [...prev, newResourceObj]);
-      setNewResource({
-        title: '',
-        category: '',
-        description: '',
-        file: null
-      });
+  const fetchResources = async () => {
+    try {
+      const data = await resourceService.getResources();
+      setResources(data);
+    } catch (err) {
+      setError('Failed to fetch resources.');
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handleDeleteResource = (id) => {
-    setResources(prev => prev.filter(resource => resource.id !== id));
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      await resourceService.createResource(formData);
+      setShowAddModal(false);
+      setFormData({ title: '', description: '', fileType: '', filePath: '' });
+      fetchResources();
+    } catch (err) {
+      setError('Failed to create resource.');
+    }
   };
+
+  const handleDelete = async (id) => {
+    if (window.confirm('Are you sure you want to delete this resource?')) {
+      try {
+        await resourceService.deleteResource(id);
+        fetchResources();
+      } catch (err) {
+        setError('Failed to delete resource.');
+      }
+    }
+  };
+
+  if (loading) return <p>Loading...</p>;
+  if (error) return <p>{error}</p>;
 
   return (
     <div className="admin-resources-page">
-      <h1>Admin Resources Management</h1>
-      
-      <div className="admin-resources-controls">
-        <h2>Add New Resource</h2>
-        <form onSubmit={handleAddResource} className="admin-resources-form">
-          <input
-            type="text"
-            name="title"
-            placeholder="Resource Title"
-            value={newResource.title}
-            onChange={handleInputChange}
-            required
-          />
-          <select
-            name="category"
-            value={newResource.category}
-            onChange={handleInputChange}
-            required
-          >
-            <option value="">Select Category</option>
-            <option value="college">College</option>
-            <option value="career">Career</option>
-            <option value="financial">Financial</option>
-            <option value="wellness">Wellness</option>
-            <option value="academic">Academic</option>
-          </select>
-          <textarea
-            name="description"
-            placeholder="Description"
-            value={newResource.description}
-            onChange={handleInputChange}
-            rows="3"
-          />
-          <input
-            type="file"
-            onChange={handleFileUpload}
-            required
-          />
-          <button type="submit">Upload Resource</button>
-        </form>
+      <div className="resources-header">
+        <h2>Manage Resources</h2>
+        <button 
+          className="primary-button"
+          onClick={() => setShowAddModal(true)}
+        >
+          <FaPlus /> Add Resource
+        </button>
       </div>
 
-      <div>
-        <h2>Existing Resources</h2>
-        <table className="admin-resources-table">
-          <thead>
-            <tr>
-              <th>Title</th>
-              <th>Category</th>
-              <th>Upload Date</th>
-              <th>Downloads</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {resources.map(resource => (
-              <tr key={resource.id}>
-                <td>{resource.title}</td>
-                <td>{resource.category}</td>
-                <td>{resource.uploadDate}</td>
-                <td>{resource.downloads}</td>
-                <td>
-                  <button>Edit</button>
-                  <button onClick={() => handleDeleteResource(resource.id)}>Delete</button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      <div className="resources-list">
+        {resources.length === 0 ? (
+          <p>No resources found.</p>
+        ) : (
+          resources.map((resource) => (
+            <div key={resource._id} className="resource-item">
+              <div className="resource-info">
+                <h3>{resource.title}</h3>
+                <p>{resource.description}</p>
+                <span className="resource-type">{resource.fileType}</span>
+              </div>
+              <div className="resource-actions">
+                <button className="download-button">
+                  <FaDownload />
+                </button>
+                <button className="edit-button">
+                  <FaEdit />
+                </button>
+                <button 
+                  className="delete-button"
+                  onClick={() => handleDelete(resource._id)}
+                >
+                  <FaTrash />
+                </button>
+              </div>
+            </div>
+          ))
+        )}
       </div>
+
+      {showAddModal && (
+        <div className="modal-overlay">
+          <div className="modal">
+            <h3>Add New Resource</h3>
+            <form onSubmit={handleSubmit}>
+              <input
+                type="text"
+                placeholder="Title"
+                value={formData.title}
+                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                required
+              />
+              <textarea
+                placeholder="Description"
+                value={formData.description}
+                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                required
+              />
+              <input
+                type="text"
+                placeholder="File Type (e.g., PDF, DOCX)"
+                value={formData.fileType}
+                onChange={(e) => setFormData({ ...formData, fileType: e.target.value })}
+                required
+              />
+              <input
+                type="text"
+                placeholder="File Path/URL"
+                value={formData.filePath}
+                onChange={(e) => setFormData({ ...formData, filePath: e.target.value })}
+                required
+              />
+              <div className="modal-actions">
+                <button type="submit" className="primary-button">Add Resource</button>
+                <button 
+                  type="button" 
+                  className="secondary-button"
+                  onClick={() => setShowAddModal(false)}
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

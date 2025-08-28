@@ -1,0 +1,40 @@
+.submission-viewer {
+  padding: 20px;
+  font-family: Arial, sans-serif;
+}
+
+.submission-header {
+  margin-bottom: 20px;
+}
+
+.submission-details {
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  padding: 15px;
+  background-color: #f9f9f9;
+}
+
+.submission-item {
+  margin-bottom: 10px;
+}
+
+.submission-item label {
+  font-weight: bold;
+}
+
+.submission-item span {
+  margin-left: 10px;
+}
+
+.btn-download {
+  padding: 8px 12px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.btn-download:hover {
+  background-color: #0056b3;
+}

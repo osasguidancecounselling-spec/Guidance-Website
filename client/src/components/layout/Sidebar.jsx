@@ -4,35 +4,41 @@ import './Sidebar.css';
 
 const Sidebar = ({ isOpen, user }) => {
   const getNavigationItems = () => {
+    const baseItems = [
+      { path: '/dashboard', icon: 'fas fa-home', label: 'Dashboard' },
+    ];
+    let roleSpecificItems = [];
+
     switch (user?.role) {
       case 'admin':
-        return [
-          { path: '/dashboard', icon: 'fas fa-home', label: 'Dashboard' },
+        roleSpecificItems = [
           { path: '/admin/students', icon: 'fas fa-users', label: 'Students' },
           { path: '/admin/counselors', icon: 'fas fa-user-md', label: 'Counselors' },
           { path: '/admin/appointments', icon: 'fas fa-calendar', label: 'Appointments' },
           { path: '/admin/forms', icon: 'fas fa-file-alt', label: 'Forms' },
           { path: '/admin/analytics', icon: 'fas fa-chart-bar', label: 'Analytics' },
-          { path: '/admin/announcements', icon: 'fas fa-bullhorn', label: 'Announcements' }
+          { path: '/admin/announcements', icon: 'fas fa-bullhorn', label: 'Announcements' },
+          { path: '/admin/resources', icon: 'fas fa-book-open', label: 'Resources' }
         ];
+        break;
       case 'counselor':
-        return [
-          { path: '/dashboard', icon: 'fas fa-home', label: 'Dashboard' },
+        roleSpecificItems = [
           { path: '/counselor/appointments', icon: 'fas fa-calendar', label: 'My Appointments' },
           { path: '/counselor/students', icon: 'fas fa-users', label: 'My Students' },
           { path: '/counselor/forms', icon: 'fas fa-file-alt', label: 'Forms' },
           { path: '/counselor/chat', icon: 'fas fa-comments', label: 'Messages' },
           { path: '/counselor/reports', icon: 'fas fa-chart-line', label: 'Reports' }
         ];
+        break;
       default:
-        return [
-          { path: '/dashboard', icon: 'fas fa-home', label: 'Dashboard' },
+        roleSpecificItems = [
           { path: '/student/forms', icon: 'fas fa-file-alt', label: 'Forms' },
           { path: '/student/appointments', icon: 'fas fa-calendar', label: 'Appointments' },
           { path: '/student/chat', icon: 'fas fa-comments', label: 'Messages' },
           { path: '/student/resources', icon: 'fas fa-book', label: 'Resources' }
         ];
     }
+    return [...baseItems, ...roleSpecificItems];
   };
 
   const navigationItems = getNavigationItems();
