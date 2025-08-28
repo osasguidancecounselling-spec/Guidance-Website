@@ -1,0 +1,51 @@
+.admin-notes {
+  padding: 10px;
+  background-color: #f9f9f9;
+  border-radius: 4px;
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.admin-notes ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+.admin-notes li {
+  background-color: #fff;
+  margin-bottom: 8px;
+  padding: 8px;
+  border-radius: 4px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.admin-notes button {
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  padding: 4px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.admin-notes button:hover {
+  background-color: #c82333;
+}
+
+.admin-notes input {
+  width: calc(100% - 90px);
+  padding: 8px;
+  margin-right: 8px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+}
+
+.admin-notes button.add-note {
+  background-color: #007bff;
+}
+
+.admin-notes button.add-note:hover {
+  background-color: #0069d9;
+}

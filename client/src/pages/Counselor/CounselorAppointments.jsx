@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import appointmentService from '../../services/appointmentService';
+import { appointmentService } from '../../services/appointmentService';
 import './CounselorAppointments.css';
 
 const CounselorAppointments = () => {

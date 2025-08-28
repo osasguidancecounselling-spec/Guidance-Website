@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
-import { api } from "../../services/api";
+import api from "../../services/api";
 import { validatePassword } from "../../utils/validation";
 import "./ForgotPassword.css";
 

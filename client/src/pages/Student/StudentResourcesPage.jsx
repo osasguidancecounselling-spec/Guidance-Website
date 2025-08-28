@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { resourceService } from '../../services/resourceService';
+import resourceService from '../../services/resourceService';
 import './StudentResourcesPage.css';
 
 const StudentResourcesPage = () => {

@@ -1,7 +1,7 @@
 // client/src/pages/Admin/AdminFormViewer.jsx
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { api } from "../../services/api"; // Use the central api instance
+import api from "../../services/api"; // Use the central api instance
 
 import "./AdminFormViewer.css";
 

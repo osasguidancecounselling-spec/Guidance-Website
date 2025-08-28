@@ -1,6 +1,6 @@
 import React, { createContext, useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { api } from '../services/api'; // Assuming your central axios instance is here
+import api from '../services/api'; // Assuming your central axios instance is here
 
 // Create the Auth Context
 const AuthContext = createContext();
