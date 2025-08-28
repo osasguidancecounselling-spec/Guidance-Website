@@ -1,5 +1,6 @@
 {
   "version": 2,
+  "public": false,
   "builds": [
     {
       "src": "server/index.js",
